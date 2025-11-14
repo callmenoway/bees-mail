@@ -76,7 +76,7 @@ export function RegisterForm() {
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log({
-      email: `${values.emailPrefix}#beesmail.com`,
+      email: `${values.emailPrefix}:beesmail`,
       password: values.password,
     });
     setShowSuccess(true);
@@ -92,7 +92,7 @@ export function RegisterForm() {
             Registrazione completata!
           </AlertTitle>
           <AlertDescription className="text-green-700">
-            Il tuo account {form.getValues("emailPrefix")}#beesmail.com è stato
+            Il tuo account {form.getValues("emailPrefix")}:beesmail è stato
             creato con successo.
           </AlertDescription>
         </Alert>
@@ -106,22 +106,22 @@ export function RegisterForm() {
             name="emailPrefix"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-amber-900">
+                <FormLabel className="text-amber-900 dark:text-amber-400">
                   Indirizzo Email
                 </FormLabel>
                 <FormControl>
-                  <div className="flex items-center overflow-hidden rounded-md border border-amber-300 bg-white focus-within:ring-2 focus-within:ring-amber-500">
+                  <div className="flex items-center overflow-hidden rounded-md border border-amber-300 dark:border-amber-700 bg-white dark:bg-slate-900 focus-within:ring-2 focus-within:ring-amber-500">
                     <Input
                       placeholder="username"
                       {...field}
-                      className="flex-1 border-0 focus-visible:ring-0"
+                      className="flex-1 border-0 focus-visible:ring-0 text-gray-900 dark:text-gray-100"
                     />
-                    <span className="bg-amber-100 px-3 py-2 text-sm font-medium text-amber-900">
-                      #beesmail.com
+                    <span className="bg-amber-100 dark:bg-amber-900 px-3 py-2 text-sm font-medium text-amber-900 dark:text-amber-300">
+                      :beesmail
                     </span>
                   </div>
                 </FormControl>
-                <FormDescription className="text-xs text-amber-700">
+                <FormDescription className="text-xs text-amber-700 dark:text-amber-500">
                   Scegli il prefisso per la tua email Beesmail
                 </FormDescription>
                 <FormMessage />
@@ -135,18 +135,18 @@ export function RegisterForm() {
             name="password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-amber-900">Password</FormLabel>
+                <FormLabel className="text-amber-900 dark:text-amber-400">Password</FormLabel>
                 <FormControl>
                   <Input
                     type="password"
                     placeholder="••••••••"
                     {...field}
-                    className="border-amber-300 focus-visible:ring-amber-500"
+                    className="border-amber-300 dark:border-amber-700 focus-visible:ring-amber-500 text-gray-900 dark:text-gray-100"
                   />
                 </FormControl>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="text-amber-700">Forza password:</span>
+                    <span className="text-amber-700 dark:text-amber-500">Forza password:</span>
                     <span
                       className={`font-medium ${
                         passwordStrength < 50
@@ -168,8 +168,7 @@ export function RegisterForm() {
                     className="h-2 bg-amber-200 [&>div]:bg-gradient-to-r [&>div]:from-yellow-500 [&>div]:to-amber-600"
                   />
                 </div>
-                <FormDescription className="text-xs text-amber-700">
-                  Minimo 8 caratteri, con maiuscole, minuscole, numeri e
+                <FormDescription className="text-xs text-amber-700 dark:text-amber-500">\n                  Minimo 8 caratteri, con maiuscole, minuscole, numeri e
                   simboli
                 </FormDescription>
                 <FormMessage />
@@ -183,7 +182,7 @@ export function RegisterForm() {
             name="confirmPassword"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-amber-900">
+                <FormLabel className="text-amber-900 dark:text-amber-400">
                   Conferma Password
                 </FormLabel>
                 <FormControl>
@@ -191,7 +190,7 @@ export function RegisterForm() {
                     type="password"
                     placeholder="••••••••"
                     {...field}
-                    className="border-amber-300 focus-visible:ring-amber-500"
+                    className="border-amber-300 dark:border-amber-700 focus-visible:ring-amber-500 text-gray-900 dark:text-gray-100"
                   />
                 </FormControl>
                 <FormMessage />
@@ -213,11 +212,11 @@ export function RegisterForm() {
                   />
                 </FormControl>
                 <div className="space-y-1 leading-none">
-                  <Label className="text-sm text-amber-900">
+                  <Label className="text-sm text-amber-900 dark:text-amber-400">
                     Accetto i{" "}
                     <a
                       href="/terms"
-                      className="font-medium text-amber-700 underline hover:text-amber-900"
+                      className="font-medium text-amber-700 dark:text-amber-500 underline hover:text-amber-900 dark:hover:text-amber-300"
                     >
                       termini e le condizioni
                     </a>

@@ -19,7 +19,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Progress } from "@/components/ui/progress";
-import { CheckCircle2Icon } from "lucide-react";
+import { CheckCircle2Icon, AlertCircle, X } from "lucide-react";
+import trpc from "@/utils/trpc";
 
 // Schema di validazione con Zod
 const formSchema = z.object({
@@ -27,8 +28,8 @@ const formSchema = z.object({
     .string()
     .min(3, { message: "Il prefisso email deve essere almeno 3 caratteri." })
     .max(30, { message: "Il prefisso email non può superare 30 caratteri." })
-    .regex(/^[a-zA-Z0-9._-]+$/, {
-      message: "Il prefisso può contenere solo lettere, numeri, punti, trattini e underscore.",
+    .regex(/^[a-zA-Z0-9]+$/, {
+      message: "Il prefisso può contenere solo lettere e numeri.",
     }),
   password: z
     .string()
@@ -51,6 +52,9 @@ const formSchema = z.object({
 export function RegisterForm() {
   const [passwordStrength, setPasswordStrength] = useState(0);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showError, setShowError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -74,26 +78,63 @@ export function RegisterForm() {
     setPasswordStrength(strength);
   }, [watchPassword]);
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log({
-      email: `${values.emailPrefix}:beesmail`,
-      password: values.password,
-    });
-    setShowSuccess(true);
-    setTimeout(() => setShowSuccess(false), 5000);
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    setIsLoading(true);
+    setShowError(false);
+    
+    try {
+      const result = await trpc.auth.register.mutate({
+        username: values.emailPrefix,
+        password: values.password,
+      });
+
+      if (result.success) {
+        setShowSuccess(true);
+        form.reset();
+        setTimeout(() => {
+          setShowSuccess(false);
+          // Redirect to login page
+          window.location.href = "/login";
+        }, 2000);
+      }
+    } catch (error: any) {
+      setErrorMessage(error.message || "Si è verificato un errore durante la registrazione");
+      setShowError(true);
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
     <>
       {showSuccess && (
-        <Alert className="mb-4 border-green-200 bg-green-50">
-          <CheckCircle2Icon className="h-4 w-4 text-green-600" />
-          <AlertTitle className="text-green-800">
+        <Alert className="mb-4 border-green-200 bg-green-50 dark:bg-green-950 dark:border-green-800">
+          <CheckCircle2Icon className="h-4 w-4 text-green-600 dark:text-green-400" />
+          <AlertTitle className="text-green-800 dark:text-green-300">
             Registrazione completata!
           </AlertTitle>
-          <AlertDescription className="text-green-700">
+          <AlertDescription className="text-green-700 dark:text-green-400">
             Il tuo account {form.getValues("emailPrefix")}:beesmail è stato
-            creato con successo.
+            creato con successo. Reindirizzamento in corso...
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {showError && (
+        <Alert className="mb-4 border-red-200 bg-red-50 dark:bg-red-950 dark:border-red-800 relative">
+          <AlertCircle className="h-4 w-4 text-red-600 dark:text-red-400" />
+          <button
+            onClick={() => setShowError(false)}
+            className="absolute top-2 right-2 text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-200"
+            aria-label="Chiudi"
+          >
+            <X className="h-4 w-4" />
+          </button>
+          <AlertTitle className="text-red-800 dark:text-red-300">
+            Errore
+          </AlertTitle>
+          <AlertDescription className="text-red-700 dark:text-red-400">
+            {errorMessage}
           </AlertDescription>
         </Alert>
       )}
@@ -230,9 +271,10 @@ export function RegisterForm() {
           {/* Pulsante Submit */}
           <Button
             type="submit"
-            className="w-full bg-gradient-to-r from-yellow-500 to-amber-600 text-white hover:from-yellow-600 hover:to-amber-700"
+            disabled={isLoading}
+            className="w-full bg-gradient-to-r from-yellow-500 to-amber-600 text-white hover:from-yellow-600 hover:to-amber-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Crea Account
+            {isLoading ? "Creazione account..." : "Crea Account"}
           </Button>
         </form>
       </Form>

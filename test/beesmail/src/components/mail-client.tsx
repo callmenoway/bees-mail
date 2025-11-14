@@ -52,6 +52,7 @@ import {
 import { cn } from "@/lib/utils";
 import { signOut } from "next-auth/react";
 import { useTheme } from "next-themes";
+import { AccountSettings } from "@/components/account-settings";
 
 // Mock data per le email
 const mockEmails = [
@@ -98,13 +99,16 @@ const mockEmails = [
 ];
 
 interface MailClientProps {
+  userId: string;
   userEmail: string;
+  userAvatar?: string | null;
 }
 
-export function MailClient({ userEmail }: MailClientProps) {
+export function MailClient({ userId, userEmail, userAvatar }: MailClientProps) {
   const [selectedEmail, setSelectedEmail] = useState<typeof mockEmails[0] | null>(null);
   const [activeFolder, setActiveFolder] = useState("inbox");
   const { theme, setTheme } = useTheme();
+  const [showSettings, setShowSettings] = useState(false);
 
   const folders = [
     { id: "inbox", label: "Inbox", icon: Inbox, count: 2 },
@@ -209,6 +213,7 @@ export function MailClient({ userEmail }: MailClientProps) {
                   <DropdownMenuTrigger asChild>
                     <SidebarMenuButton className="cursor-pointer">
                       <Avatar className="h-8 w-8">
+                        <AvatarImage src={userAvatar || undefined} />
                         <AvatarFallback className="bg-gradient-to-br from-yellow-400 to-amber-600 text-white font-semibold">
                           {userEmail.charAt(0).toUpperCase()}
                         </AvatarFallback>
@@ -225,7 +230,10 @@ export function MailClient({ userEmail }: MailClientProps) {
                     </SidebarMenuButton>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent side="top" align="end" className="w-56">
-                    <DropdownMenuItem className="cursor-pointer">
+                    <DropdownMenuItem 
+                      className="cursor-pointer"
+                      onClick={() => setShowSettings(true)}
+                    >
                       <Settings className="mr-2 h-4 w-4" />
                       <span>Account Settings</span>
                     </DropdownMenuItem>
@@ -440,6 +448,15 @@ export function MailClient({ userEmail }: MailClientProps) {
           </ResizablePanelGroup>
         </SidebarInset>
       </div>
+
+      {/* Account Settings Dialog */}
+      <AccountSettings
+        open={showSettings}
+        onOpenChange={setShowSettings}
+        userId={userId}
+        userEmail={userEmail}
+        currentAvatar={userAvatar}
+      />
     </SidebarProvider>
   );
 }

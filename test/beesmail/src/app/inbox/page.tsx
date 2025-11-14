@@ -12,7 +12,11 @@ export default async function InboxPage() {
 
   return (
     <div className="h-screen overflow-hidden">
-      <MailClient userEmail={session.user?.email || "user:beesmail"} />
+      <MailClient 
+        userId={(session.user as any)?.id || ""}
+        userEmail={session.user?.email || "user:beesmail"}
+        userAvatar={session.user?.image || null}
+      />
     </div>
   );
 }

@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 import { Moon, Sun, LogIn, UserPlus, LogOut } from "lucide-react"
 import { useTheme } from "next-themes"
 import { useSession, signOut } from "next-auth/react"
@@ -20,6 +21,12 @@ export function Navigation() {
   const { theme, setTheme } = useTheme()
   const { data: session } = useSession()
   const { t } = useLanguage()
+  const pathname = usePathname()
+
+  // Hide navbar on inbox page
+  if (pathname === "/inbox") {
+    return null
+  }
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Hashcash Generator - Bees Mail</title>
+  <style>
+    body {
+      font-family: monospace;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #1e1e1e;
+      color: #00ff00;
+    }
+    input, button {
+      padding: 10px;
+      margin: 10px 0;
+      font-family: monospace;
+      font-size: 14px;
+    }
+    button {
+      background: #00ff00;
+      color: #000;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #00cc00;
+    }
+    #result {
+      background: #2e2e2e;
+      padding: 20px;
+      margin: 20px 0;
+      border: 2px solid #00ff00;
+      white-space: pre-wrap;
+    }
+    #progress {
+      color: #ffff00;
+    }
+  </style>
+</head>
+<body>
+  <h1>🐝 Bees Mail - Hashcash Generator</h1>
+  
+  <div>
+    <label>Destinatario:</label><br>
+    <input type="text" id="recipient" value="mario~beesmail.com" style="width: 400px">
+  </div>
+  
+  <div>
+    <label>Difficulty (bits):</label><br>
+    <input type="number" id="bits" value="4" min="1" max="20">
+  </div>
+  
+  <button onclick="generateHashcash()">🚀 Genera Hashcash</button>
+  
+  <div id="progress"></div>
+  <div id="result"></div>
+  
+  <script>
+    async function createHashcashStamp(recipient, bits) {
+      const version = 1;
+      const date = new Date().toISOString().slice(2, 10).replace(/-/g, '');
+      const random = Math.random().toString(36).substring(7);
+      
+      let counter = 0;
+      const maxIterations = 10000000;
+      
+      while (counter < maxIterations) {
+        const stamp = `${version}:${bits}:${date}:${recipient}::${random}:${counter}`;
+        
+        const encoder = new TextEncoder();
+        const data = encoder.encode(stamp);
+        const hashBuffer = await crypto.subtle.digest('SHA-1', data);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        
+        const binaryHash = BigInt('0x' + hashHex).toString(2).padStart(160, '0');
+        
+        if (binaryHash.startsWith('0'.repeat(bits))) {
+          return {
+            stamp,
+            bits,
+            computedAt: new Date().toISOString(),
+            hash: hashHex,
+            attempts: counter + 1
+          };
+        }
+        
+        counter++;
+        
+        if (counter % 1000 === 0) {
+          document.getElementById('progress').textContent = 
+            `⏳ Tentativo ${counter.toLocaleString()}...`;
+          await new Promise(r => setTimeout(r, 0)); // Let UI update
+        }
+      }
+      
+      return null;
+    }
+    
+    async function generateHashcash() {
+      const recipient = document.getElementById('recipient').value;
+      const bits = parseInt(document.getElementById('bits').value);
+      
+      document.getElementById('progress').textContent = '🔨 Calcolo in corso...';
+      document.getElementById('result').textContent = '';
+      
+      const start = Date.now();
+      const result = await createHashcashStamp(recipient, bits);
+      const duration = ((Date.now() - start) / 1000).toFixed(2);
+      
+      if (result) {
+        document.getElementById('progress').textContent = 
+          `✅ TROVATO in ${duration}s dopo ${result.attempts.toLocaleString()} tentativi!`;
+        
+        const jsonOutput = {
+          stamp: result.stamp,
+          bits: result.bits,
+          computedAt: result.computedAt
+        };
+        
+        document.getElementById('result').innerHTML = `
+<strong>🐝 Hashcash generato con successo!</strong>
+
+<strong>Hash SHA-1:</strong> ${result.hash}
+
+<strong>JSON per Postman:</strong>
+${JSON.stringify(jsonOutput, null, 2)}
+
+<strong>Body completo per /mail/send:</strong>
+{
+  "to": ["${recipient}"],
+  "subject": "Test Email",
+  "content": {
+    "type": "plain",
+    "body": "Email body"
+  },
+  "metadata": {
+    "hashcash": ${JSON.stringify(jsonOutput, null, 4)}
+  }
+}
+        `;
+      } else {
+        document.getElementById('progress').textContent = 
+          '❌ Limite massimo di tentativi raggiunto!';
+      }
+    }
+  </script>
+</body>
+</html>

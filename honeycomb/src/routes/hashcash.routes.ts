@@ -1,36 +1,49 @@
 import { Router } from 'express';
-import { generateHashcash, verifyHashcash } from '../lib/hashcash';
+import { authMiddleware, AuthRequest } from '../middleware/auth';
+import crypto from 'crypto';
 
 const router = Router();
 
-router.post('/generate', (req, res) => {
-  const { resource, bits = 20 } = req.body;
-  
-  if (!resource) {
-    return res.status(400).json({ error: 'Resource is required' });
-  }
+// Generate hashcash challenge
+router.get('/challenge', authMiddleware, (req: AuthRequest, res) => {
+  try {
+    const challenge = crypto.randomBytes(16).toString('hex');
+    const difficulty = 4;
 
-  const stamp = generateHashcash(resource, bits);
-  
-  res.json({
-    stamp,
-    verified: verifyHashcash(stamp, bits),
-    bits,
-    computedAt: new Date().toISOString(),
-  });
+    res.json({
+      challenge,
+      difficulty,
+    });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
-router.post('/verify', (req, res) => {
-  const { stamp, requiredBits = 20 } = req.body;
-  
-  if (!stamp) {
-    return res.status(400).json({ error: 'Stamp is required' });
-  }
+// Verify hashcash proof of work
+router.post('/verify', authMiddleware, (req: AuthRequest, res) => {
+  try {
+    const { challenge, nonce } = req.body;
 
-  res.json({
-    verified: verifyHashcash(stamp, requiredBits),
-    stamp,
-  });
+    if (!challenge || !nonce) {
+      return res.status(400).json({ error: 'Challenge and nonce required' });
+    }
+
+    const hash = crypto
+      .createHash('sha256')
+      .update(challenge + nonce)
+      .digest('hex');
+
+    const difficulty = 4;
+    const valid = hash.startsWith('0'.repeat(difficulty));
+
+    if (valid) {
+      res.json({ valid: true, hash });
+    } else {
+      res.status(400).json({ valid: false, error: 'Invalid proof of work', hash });
+    }
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 export default router;

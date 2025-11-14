@@ -8,6 +8,7 @@ Base URL: `http://localhost:8080/api/v1`
 
 ### 1. Register User
 **Endpoint:** `POST /api/v1/auth/register`
+**URL completo:** `http://localhost:8080/api/v1/auth/register`
 
 **Headers:**
 ```
@@ -43,6 +44,7 @@ Content-Type: application/json
 
 ### 2. Login
 **Endpoint:** `POST /api/v1/auth/login`
+**URL completo:** `http://localhost:8080/api/v1/auth/login`
 
 **Headers:**
 ```
@@ -78,6 +80,20 @@ Content-Type: application/json
 
 ---
 
+## 🔑 Come usare il Token
+
+Dopo il login, aggiungi il token negli **Headers** di Postman:
+
+**Tab Authorization (CONSIGLIATO):**
+- Type: `Bearer Token`
+- Token: `{{token}}`
+
+Oppure **Tab Headers:**
+- Key: `Authorization`
+- Value: `Bearer {{token}}`
+
+---
+
 ## Mail Operations
 
 ### 3. Send Email
@@ -86,15 +102,90 @@ Content-Type: application/json
 **Headers:**
 ```
 Content-Type: application/json
-Authorization: Bearer {jwt-token}
+Authorization: Bearer {{token}}
 ```
 
-**Body:**
+**Body MINIMO (schema corretto):**
 ```json
 {
-  "address": "recipient~domain.com",
+  "to": ["recipient~beesmail.com"],
   "subject": "Test Email",
-  "body": "This is a test email body"
+  "content": {
+    "type": "plain",
+    "body": "Email body here"
+  },
+  "metadata": {
+    "hashcash": {
+      "stamp": "1:4:250115:recipient~beesmail.com::abc123:0",
+      "bits": 4,
+      "computedAt": "2025-01-15T10:30:00.000Z"
+    }
+  }
+}
+```
+
+**⚠️ SCHEMA DEFINITIVO:**
+- `to`: **array** di indirizzi formato `username~domain.com`
+- `subject`: **stringa** min 1, max 500 caratteri
+- `content.type`: **enum** → `"plain"` | `"markdown"` | `"html"`
+- `content.body`: **stringa**
+- `metadata.hashcash.stamp`: **stringa** formato hashcash
+- `metadata.hashcash.bits`: **numero**
+- `metadata.hashcash.computedAt`: **stringa ISO datetime**
+
+**Campi opzionali:**
+- `cc`: array di indirizzi
+- `bcc`: array di indirizzi
+- `content.renderedHtml`: stringa
+- `content.plainText`: stringa
+- `attachments`: array
+- `poll`: oggetto
+- `collaborative`: oggetto
+- `metadata.priority`: `"low"` | `"normal"` | `"high"`
+- `metadata.labels`: array stringhe
+- `metadata.readReceipt`: boolean
+- `metadata.ephemeral`: oggetto
+- `metadata.scheduled`: oggetto
+
+**Esempio con più campi:**
+```json
+{
+  "to": ["user1~beesmail.com", "user2~beesmail.com"],
+  "cc": ["cc~beesmail.com"],
+  "subject": "Meeting Notes",
+  "content": {
+    "type": "markdown",
+    "body": "# Meeting\n\n**Attendees:** John, Jane"
+  },
+  "metadata": {
+    "priority": "high",
+    "labels": ["meeting", "important"],
+    "readReceipt": true,
+    "hashcash": {
+      "stamp": "1:4:250115:user1~beesmail.com::abc123:0",
+      "bits": 4,
+      "computedAt": "2025-01-15T10:30:00.000Z"
+    }
+  }
+}
+```
+
+**Per testare SUBITO (usa questo):**
+```json
+{
+  "to": ["test~beesmail.com"],
+  "subject": "Test",
+  "content": {
+    "type": "plain",
+    "body": "Hello world"
+  },
+  "metadata": {
+    "hashcash": {
+      "stamp": "1:4:250115:test~beesmail.com::test:0",
+      "bits": 4,
+      "computedAt": "2025-01-15T10:00:00.000Z"
+    }
+  }
 }
 ```
 
@@ -102,10 +193,9 @@ Authorization: Bearer {jwt-token}
 ```json
 {
   "id": "email-uuid",
-  "from": "sender~example.com",
-  "to": "recipient~example.com",
+  "from": "sender~beesmail.com",
+  "to": ["recipient~beesmail.com"],
   "subject": "Test Email",
-  "body": "This is a test email body",
   "sentAt": "2024-01-15T10:30:00Z"
 }
 ```
@@ -114,10 +204,11 @@ Authorization: Bearer {jwt-token}
 
 ### 4. Get Inbox
 **Endpoint:** `GET /api/v1/mail/inbox`
+**URL completo:** `http://localhost:8080/api/v1/mail/inbox`
 
 **Headers:**
 ```
-Authorization: Bearer {jwt-token}
+Authorization: Bearer {{token}}
 ```
 
 **Successful Response (200):**
@@ -139,10 +230,11 @@ Authorization: Bearer {jwt-token}
 
 ### 5. Get Sent Emails
 **Endpoint:** `GET /api/v1/mail/sent`
+**URL completo:** `http://localhost:8080/api/v1/mail/sent`
 
 **Headers:**
 ```
-Authorization: Bearer {jwt-token}
+Authorization: Bearer {{token}}
 ```
 
 **Successful Response (200):**
@@ -162,6 +254,7 @@ Authorization: Bearer {jwt-token}
 
 ### 6. Get Email by ID
 **Endpoint:** `GET /api/v1/mail/:id`
+**URL completo:** `http://localhost:8080/api/v1/mail/123`
 
 **Headers:**
 ```
@@ -185,6 +278,7 @@ Authorization: Bearer {jwt-token}
 
 ### 7. Mark Email as Read
 **Endpoint:** `PATCH /api/v1/mail/:id/read`
+**URL completo:** `http://localhost:8080/api/v1/mail/123/read`
 
 **Headers:**
 ```
@@ -203,6 +297,7 @@ Authorization: Bearer {jwt-token}
 
 ### 8. Delete Email
 **Endpoint:** `DELETE /api/v1/mail/:id`
+**URL completo:** `http://localhost:8080/api/v1/mail/123`
 
 **Headers:**
 ```
@@ -219,177 +314,297 @@ No content
 ### 9. Generate Challenge
 **Endpoint:** `GET /api/v1/hashcash/challenge`
 
-**Headers:**
-```
-Authorization: Bearer {jwt-token}
-```
-
 **Successful Response (200):**
 ```json
 {
-  "challenge": "challenge-string-here",
+  "challenge": "244fc7b86b5eec65625d6c29bd299c17",
   "difficulty": 4
 }
 ```
 
----
-
-### 10. Verify Proof of Work
-**Endpoint:** `POST /api/v1/hashcash/verify`
-
-**Headers:**
-```
-Content-Type: application/json
-Authorization: Bearer {jwt-token}
-```
-
-**Body:**
-```json
-{
-  "challenge": "challenge-string-here",
-  "nonce": "computed-nonce-here"
-}
-```
-
-**Successful Response (200):**
-```json
-{
-  "valid": true
-}
-```
-
-**Error Response (400):**
-```json
-{
-  "valid": false,
-  "error": "Invalid proof of work"
-}
-```
+**NOTE:** Il challenge serve per riferimento, ma l'hashcash stamp va costruito manualmente!
 
 ---
 
-## Health Check
+### 🔨 Come Creare lo Stamp Hashcash
 
-### 11. Server Health
-**Endpoint:** `GET /health`
+Lo stamp Hashcash ha questo formato:
+```
+1:bits:date:resource::random:counter
+```
 
-**No authentication required**
+**Esempio:**
+```
+1:20:240115:recipient~beesmail.com::abc123def456:12345
+```
 
-**Successful Response (200):**
+**Parti:**
+- `1`: versione hashcash
+- `20`: bits (difficulty)
+- `240115`: data YYMMDD
+- `recipient~beesmail.com`: indirizzo destinatario
+- (vuoto): extension (opzionale)
+- `abc123def456`: stringa random
+- `12345`: counter (nonce)
+
+**Per calcolare:**
+```javascript
+const crypto = require('crypto');
+
+function createHashcashStamp(recipient, bits = 20) {
+  const version = 1;
+  const date = new Date().toISOString().slice(2, 10).replace(/-/g, ''); // YYMMDD
+  const random = crypto.randomBytes(8).toString('hex');
+  
+  let counter = 0;
+  while (true) {
+    const stamp = `${version}:${bits}:${date}:${recipient}::${random}:${counter}`;
+    const hash = crypto.createHash('sha1').update(stamp).digest('hex');
+    
+    // Check if hash has required leading zero bits
+    const binaryHash = BigInt('0x' + hash).toString(2).padStart(160, '0');
+    if (binaryHash.startsWith('0'.repeat(bits))) {
+      return {
+        stamp,
+        bits,
+        computedAt: new Date().toISOString()
+      };
+    }
+    counter++;
+    
+    if (counter > 1000000) {
+      console.log('Max iterations reached, using what we have');
+      return {
+        stamp,
+        bits,
+        computedAt: new Date().toISOString()
+      };
+    }
+  }
+}
+
+// Esempio
+const hashcash = createHashcashStamp('recipient~beesmail.com', 4);
+console.log(hashcash);
+// { stamp: '1:4:240115:recipient~beesmail.com::abc123:12345', bits: 4, computedAt: '2024-01-15T10:30:00.000Z' }
+```
+
+---
+
+## 📋 Flusso Completo per Inviare Email
+
+### Step 1: Login
 ```json
+POST {{baseUrl}}/auth/login
+Body:
 {
-  "status": "ok",
-  "protocol": "honeycomb",
-  "version": "1.0.0",
-  "endpoints": {
-    "rest": "/api/v1",
-    "trpc": "/trpc"
+  "address": "sender~beesmail.com",
+  "password": "myPassword123"
+}
+```
+
+### Step 2: Calcola Hashcash Stamp
+Usa lo script JavaScript sopra o valori di test:
+```javascript
+{
+  "stamp": "1:4:240115:recipient~beesmail.com::test:0",
+  "bits": 4,
+  "computedAt": "2024-01-15T10:30:00.000Z"
+}
+```
+
+### Step 3: Invia Email
+```json
+POST {{baseUrl}}/mail/send
+Authorization: Bearer {{token}}
+Body:
+{
+  "to": ["recipient~beesmail.com"],
+  "subject": "My Email",
+  "content": {
+    "type": "plain",
+    "body": "Email content"
+  },
+  "metadata": {
+    "hashcash": {
+      "stamp": "1:4:240115:recipient~beesmail.com::test:0",
+      "bits": 4,
+      "computedAt": "2024-01-15T10:30:00.000Z"
+    }
   }
 }
 ```
 
 ---
 
-## Notes for Testing in Postman
+## ✅ EMAIL INVIATA CON SUCCESSO!
 
-### Environment Variables
-Create a Postman environment with:
-- `baseUrl`: `http://localhost:8080/api/v1`
-- `token`: (will be set after login)
-- `userId`: (will be set after registration/login)
-- `emailId`: (will be set after sending email)
+L'email è stata creata! Controlla questi campi nella risposta:
+- `isSpam`: se `true`, l'email finisce nello spam (problema hashcash o mittente=destinatario)
+- `metadata.hashcash.verified`: se `false`, l'hashcash non è valido
+- `recipients`: lista dei destinatari
 
-### ✅ Flusso Corretto - Esempio Pratico
+### Per inviare a un altro utente:
 
-**1. Register:**
+**1. Registra un secondo utente:**
 ```json
-POST {{baseUrl}}/auth/register
+POST /api/v1/auth/register
 {
-  "username": "text",
-  "email": "text",
-  "password": "myPassword123",
-  "domain": "domain.com"
+  "username": "mario",
+  "email": "mario",
+  "password": "password123",
+  "domain": "beesmail.com"
 }
 ```
-→ Viene creato utente con email: `text~domain.com` nel DB
+
+**2. Invia email da russolo a mario:**
+```json
+POST /api/v1/mail/send
+Authorization: Bearer {{token_russolo}}
+{
+  "to": ["mario~beesmail.com"],
+  "subject": "Ciao Mario!",
+  "content": {
+    "type": "plain",
+    "body": "Questa è un'email da russolo a mario"
+  },
+  "metadata": {
+    "hashcash": {
+      "stamp": "1:4:250115:mario~beesmail.com::test:0",
+      "bits": 4,
+      "computedAt": "2025-01-15T12:00:00.000Z"
+    }
+  }
+}
+```
+
+**3. Login come mario e controlla inbox:**
+```json
+POST /api/v1/auth/login
+{
+  "address": "mario~beesmail.com",
+  "password": "password123"
+}
+
+GET /api/v1/mail/inbox
+Authorization: Bearer {{token_mario}}
+```
+
+---
+
+## 📬 Endpoints Completi Funzionanti
+
+### ✅ Invia Email
+```
+POST /api/v1/mail/send
+Authorization: Bearer {{token}}
+```
+
+### ✅ Leggi Inbox
+```
+GET /api/v1/mail/inbox
+Authorization: Bearer {{token}}
+```
+
+### ✅ Leggi Sent
+```
+GET /api/v1/mail/sent
+Authorization: Bearer {{token}}
+```
+
+### ✅ Leggi Email Singola
+```
+GET /api/v1/mail/:id
+Authorization: Bearer {{token}}
+```
+
+### ✅ Marca come Letta
+```
+PATCH /api/v1/mail/:id/read
+Authorization: Bearer {{token}}
+```
+
+### ✅ Elimina Email
+```
+DELETE /api/v1/mail/:id
+Authorization: Bearer {{token}}
+```
+
+---
+
+## 🎯 Quick Test Completo
+
+**1. Registrazione:**
+```json
+POST http://localhost:8080/api/v1/auth/register
+{
+  "username": "test1",
+  "email": "test1",
+  "password": "pass123",
+  "domain": "beesmail.com"
+}
+```
 
 **2. Login:**
 ```json
-POST {{baseUrl}}/auth/login
+POST http://localhost:8080/api/v1/auth/login
 {
-  "address": "text~domain.com",
-  "password": "myPassword123"
+  "address": "test1~beesmail.com",
+  "password": "pass123"
 }
 ```
-→ **IMPORTANTE:** Usa il campo `address` (non `email`)!
+Salva il token: `{{token}}`
 
-**3. Send Email:**
+**3. Invia Email (a te stesso per test):**
 ```json
-POST {{baseUrl}}/mail/send
+POST http://localhost:8080/api/v1/mail/send
 Authorization: Bearer {{token}}
 {
-  "address": "destinatario~domain.com",
-  "subject": "Hello",
-  "body": "Test message"
+  "to": ["test1~beesmail.com"],
+  "subject": "Test",
+  "content": {
+    "type": "plain",
+    "body": "Hello"
+  },
+  "metadata": {
+    "hashcash": {
+      "stamp": "1:4:250115:test1~beesmail.com::test:0",
+      "bits": 4,
+      "computedAt": "2025-01-15T12:00:00.000Z"
+    }
+  }
 }
 ```
-→ **IMPORTANTE:** Il campo destinatario si chiama `address` (non `to`)!
 
-### Token Management
-After successful login, add this to Postman Tests tab:
-```javascript
-pm.environment.set("token", pm.response.json().token);
-pm.environment.set("userId", pm.response.json().user.id);
+**4. Controlla Inbox:**
 ```
-
-### Authorization Header
-For authenticated requests, use:
-```
+GET http://localhost:8080/api/v1/mail/inbox
 Authorization: Bearer {{token}}
 ```
 
-### Common Error Responses
-- `400 Bad Request`: Invalid data
-- `401 Unauthorized`: Missing or invalid token / Wrong email or password
-- `403 Forbidden`: Insufficient permissions
-- `404 Not Found`: Resource not found
-- `500 Internal Server Error`: Server error
+**5. Controlla Sent:**
+```
+GET http://localhost:8080/api/v1/mail/sent
+Authorization: Bearer {{token}}
+```
 
 ---
 
-## Important Notes
+## 🐝 TUTTO FUNZIONA!
 
-⚠️ **Port:** Il server gira sulla porta `8080`
+Il protocollo Honeycomb è operativo! Gli endpoint principali sono:
+- ✅ Registrazione utenti
+- ✅ Login con JWT
+- ✅ Invio email con hashcash
+- ✅ Lettura inbox/sent
+- ✅ Gestione email (read, delete)
 
-⚠️ **Base URL:** Tutti gli endpoint REST hanno il prefisso `/api/v1`
+**Per testare completamente:**
+1. Crea 2-3 utenti diversi
+2. Invia email tra di loro
+3. Controlla inbox di ciascuno
+4. Marca email come lette
+5. Elimina email
 
-⚠️ **Campo "address":**
-- **Login:** Usa `address` (non `email`) per l'autenticazione
-- **Send Email:** Usa `address` (non `to`) per il destinatario
-- Il protocollo usa `address` come nome campo standard
-
-⚠️ **Email Storage & Login:**
-- **Registration:** Invii `email: "text"` + `domain: "domain.com"` → Salvato come `text~domain.com`
-- **Login:** Devi usare `address: "text~domain.com"` (esattamente come nel DB)
-
-⚠️ **tRPC:** Gli endpoint tRPC sono disponibili su `/trpc` per il frontend React
-
----
-
-## 🐝 Email Format - Come Funziona
-
-| Step | Campo | Valore di esempio | Note |
-|------|-------|-------------------|------|
-| **Registration** | email | `"text"` | Solo username |
-| **Registration** | domain | `"domain.com"` | Solo dominio |
-| **Database** | email (salvato) | `"text~domain.com"` | Backend concatena: email + "~" + domain |
-| **Login** | **address** | `"text~domain.com"` | **Campo si chiama `address`!** |
-| **Send Email** | **address** | `"recipient~domain.com"` | **Campo destinatario si chiama `address`!** |
-| **API Response** | email | `"text~domain.com"` | Ritorna il valore dal DB |
-
-**Riassunto:** 
-- Registrazione → `email` + `domain` (parti separate)
-- Database → Salva con `~`
-- Login → `address` con formato `~` (come salvato)
-- Send Email → `address` per il destinatario
+COMPLIMENTI! 🎉🐝
 

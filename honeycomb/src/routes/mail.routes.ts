@@ -80,7 +80,7 @@ router.get('/inbox', async (req: AuthRequest, res) => {
           some: { recipientAddress: req.userAddress },
         },
         isArchived: false,
-        isSpam: false,
+        // RIMUOVO IL FILTRO isSpam per vedere anche le mail spam
       },
       include: {
         recipients: true,
@@ -96,7 +96,74 @@ router.get('/inbox', async (req: AuthRequest, res) => {
           some: { recipientAddress: req.userAddress },
         },
         isArchived: false,
-        isSpam: false,
+      },
+    });
+
+    res.json({ mails, total });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// AGGIUNGO ENDPOINT PER LO SPAM
+router.get('/spam', async (req: AuthRequest, res) => {
+  try {
+    const limit = parseInt(req.query.limit as string) || 50;
+    const offset = parseInt(req.query.offset as string) || 0;
+    
+    const mails = await prisma.mail.findMany({
+      where: {
+        recipients: {
+          some: { recipientAddress: req.userAddress },
+        },
+        isSpam: true,
+      },
+      include: {
+        recipients: true,
+      },
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+      skip: offset,
+    });
+
+    const total = await prisma.mail.count({
+      where: {
+        recipients: {
+          some: { recipientAddress: req.userAddress },
+        },
+        isSpam: true,
+      },
+    });
+
+    res.json({ mails, total });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// AGGIUNGO ENDPOINT PER LE MAIL INVIATE
+router.get('/sent', async (req: AuthRequest, res) => {
+  try {
+    const limit = parseInt(req.query.limit as string) || 50;
+    const offset = parseInt(req.query.offset as string) || 0;
+    
+    const mails = await prisma.mail.findMany({
+      where: {
+        fromAddress: req.userAddress, // <-- Cerca per mittente!
+        isArchived: false,
+      },
+      include: {
+        recipients: true,
+      },
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+      skip: offset,
+    });
+
+    const total = await prisma.mail.count({
+      where: {
+        fromAddress: req.userAddress,
+        isArchived: false,
       },
     });
 

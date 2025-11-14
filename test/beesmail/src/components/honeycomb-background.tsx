@@ -14,20 +14,18 @@ export function HoneycombBackground() {
             patternUnits="userSpaceOnUse"
             patternTransform="scale(2)"
           >
-            <g className="animate-honeycomb-float">
-              <path
-                d="M28 66L0 50L0 16L28 0L56 16L56 50L28 66L28 100"
-                fill="none"
-                className="stroke-amber-200/30 dark:stroke-amber-500/20"
-                strokeWidth="1"
-              />
-              <path
-                d="M28 0L28 34L0 50L0 84L28 100L56 84L56 50L28 34"
-                fill="none"
-                className="stroke-amber-300/20 dark:stroke-amber-400/10"
-                strokeWidth="0.5"
-              />
-            </g>
+            <path
+              d="M28 66L0 50L0 16L28 0L56 16L56 50L28 66L28 100"
+              fill="none"
+              className="stroke-amber-200/30 dark:stroke-amber-500/20"
+              strokeWidth="1"
+            />
+            <path
+              d="M28 0L28 34L0 50L0 84L28 100L56 84L56 50L28 34"
+              fill="none"
+              className="stroke-amber-300/20 dark:stroke-amber-400/10"
+              strokeWidth="0.5"
+            />
           </pattern>
           
           <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -75,11 +73,6 @@ export function HoneycombBackground() {
       <div className="absolute bottom-20 right-20 h-96 w-96 rounded-full bg-yellow-300/20 dark:bg-yellow-500/10 blur-3xl animate-pulse-slower" />
       
       <style jsx>{`
-        @keyframes honeycomb-float {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-10px); }
-        }
-        
         @keyframes float-slow {
           0%, 100% { transform: translate(0, 0); opacity: 0.3; }
           50% { transform: translate(20px, -20px); opacity: 0.6; }
@@ -103,10 +96,6 @@ export function HoneycombBackground() {
         @keyframes pulse-slower {
           0%, 100% { opacity: 0.2; }
           50% { opacity: 0.4; }
-        }
-        
-        .animate-honeycomb-float {
-          animation: honeycomb-float 8s ease-in-out infinite;
         }
         
         .animate-float-slow {

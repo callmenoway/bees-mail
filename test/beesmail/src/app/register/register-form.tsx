@@ -22,7 +22,7 @@ import { Progress } from "@/components/ui/progress";
 import { CheckCircle2Icon, AlertCircle, X } from "lucide-react";
 import trpc from "@/utils/trpc";
 
-// Schema di validazione con Zod
+//schema di validazione con zod
 const formSchema = z.object({
   emailPrefix: z
     .string()
@@ -66,7 +66,7 @@ export function RegisterForm() {
     },
   });
 
-  // Calcola la forza della password
+  //calcola la complessità della password
   const watchPassword = form.watch("password");
   useEffect(() => {
     let strength = 0;
@@ -93,7 +93,7 @@ export function RegisterForm() {
         form.reset();
         setTimeout(() => {
           setShowSuccess(false);
-          // Redirect to login page
+          //redirect alla login page
           window.location.href = "/login";
         }, 2000);
       }
@@ -141,7 +141,7 @@ export function RegisterForm() {
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          {/* Campo Email con suffisso fisso */}
+          {/* campo email con suffisso fisso */}
           <FormField
             control={form.control}
             name="emailPrefix"
@@ -170,7 +170,7 @@ export function RegisterForm() {
             )}
           />
 
-          {/* Campo Password */}
+          {/* campo password */}
           <FormField
             control={form.control}
             name="password"
@@ -187,7 +187,7 @@ export function RegisterForm() {
                 </FormControl>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="text-amber-700 dark:text-amber-500">Forza password:</span>
+                    <span className="text-amber-700 dark:text-amber-500">Complessità password:</span>
                     <span
                       className={`font-medium ${
                         passwordStrength < 50
@@ -217,7 +217,7 @@ export function RegisterForm() {
             )}
           />
 
-          {/* Campo Conferma Password */}
+          {/* campo Conferma password */}
           <FormField
             control={form.control}
             name="confirmPassword"
@@ -239,7 +239,7 @@ export function RegisterForm() {
             )}
           />
 
-          {/* Checkbox Termini e Condizioni */}
+          {/* checkbox termini e condizioni */}
           <FormField
             control={form.control}
             name="acceptTerms"
@@ -268,7 +268,7 @@ export function RegisterForm() {
             )}
           />
 
-          {/* Pulsante Submit */}
+          {/* pulsante submit */}
           <Button
             type="submit"
             disabled={isLoading}

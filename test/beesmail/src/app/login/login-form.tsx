@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -17,7 +18,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { CheckCircle2Icon, ArrowLeftIcon } from "lucide-react";
+import { AlertCircle, ArrowLeftIcon, X } from "lucide-react";
+import trpc from "@/utils/trpc";
 
 // Schema per il primo step (email)
 const emailSchema = z.object({
@@ -36,10 +38,12 @@ const passwordSchema = z.object({
 });
 
 export function LoginForm() {
+  const router = useRouter();
   const [step, setStep] = useState<"email" | "password">("email");
   const [emailPrefix, setEmailPrefix] = useState("");
-  const [showSuccess, setShowSuccess] = useState(false);
+  const [error, setError] = useState("");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const emailForm = useForm<z.infer<typeof emailSchema>>({
     resolver: zodResolver(emailSchema),
@@ -66,13 +70,25 @@ export function LoginForm() {
     }, 300);
   }
 
-  function onPasswordSubmit(values: z.infer<typeof passwordSchema>) {
-    console.log({
-      email: `${emailPrefix}:beesmail`,
-      password: values.password,
-    });
-    setShowSuccess(true);
-    setTimeout(() => setShowSuccess(false), 5000);
+  async function onPasswordSubmit(values: z.infer<typeof passwordSchema>) {
+    setError("");
+    setIsLoading(true);
+
+    try {
+      const result = await trpc.auth.login.mutate({
+        email: `${emailPrefix}:beesmail`,
+        password: values.password,
+      });
+
+      if (result.success) {
+        // Redirect a /inbox se il login ha successo
+        router.push("/inbox");
+      }
+    } catch (err: any) {
+      setError(err.message || "Email o password non corretti");
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   function goBackToEmail() {
@@ -92,15 +108,19 @@ export function LoginForm() {
 
   return (
     <>
-      {showSuccess && (
-        <Alert className="mb-4 border-green-200 bg-green-50">
-          <CheckCircle2Icon className="h-4 w-4 text-green-600" />
-          <AlertTitle className="text-green-800">
-            Accesso completato!
-          </AlertTitle>
-          <AlertDescription className="text-green-700">
-            Benvenuto, {emailPrefix}:beesmail
+      {error && (
+        <Alert className="mb-4 border-red-200 bg-red-50 dark:bg-red-950 dark:border-red-800">
+          <AlertCircle className="h-4 w-4 text-red-600 dark:text-red-400" />
+          <AlertTitle className="text-red-800 dark:text-red-300">Errore</AlertTitle>
+          <AlertDescription className="text-red-700 dark:text-red-400">
+            {error}
           </AlertDescription>
+          <button
+            onClick={() => setError("")}
+            className="absolute right-2 top-2 rounded-sm opacity-70 hover:opacity-100"
+          >
+            <X className="h-4 w-4 text-red-600 dark:text-red-400" />
+          </button>
         </Alert>
       )}
 
@@ -214,9 +234,10 @@ export function LoginForm() {
 
               <Button
                 type="submit"
-                className="w-full bg-gradient-to-r from-yellow-500 to-amber-600 text-white hover:from-yellow-600 hover:to-amber-700"
+                disabled={isLoading}
+                className="w-full bg-gradient-to-r from-yellow-500 to-amber-600 text-white hover:from-yellow-600 hover:to-amber-700 disabled:opacity-50"
               >
-                Accedi
+                {isLoading ? "Accesso in corso..." : "Accedi"}
               </Button>
             </form>
           </Form>

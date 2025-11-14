@@ -1,9 +1,12 @@
 "use client"
 
 import Link from "next/link"
-import { Moon, Sun } from "lucide-react"
+import { Moon, Sun, LogIn, UserPlus, LogOut } from "lucide-react"
 import { useTheme } from "next-themes"
+import { useSession, signOut } from "next-auth/react"
 import { Button } from "@/components/ui/button"
+import { LanguageSwitcher } from "@/components/language-switcher"
+import { useLanguage } from "@/lib/language-context"
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -15,6 +18,9 @@ import {
 
 export function Navigation() {
   const { theme, setTheme } = useTheme()
+  const { data: session } = useSession()
+  const { t } = useLanguage()
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
@@ -28,7 +34,7 @@ export function Navigation() {
         <NavigationMenu className="hidden md:flex">
           <NavigationMenuList>
             <NavigationMenuItem>
-              <NavigationMenuTrigger>Product</NavigationMenuTrigger>
+              <NavigationMenuTrigger>{t.nav.product}</NavigationMenuTrigger>
               <NavigationMenuContent>
                 <ul className="grid gap-3 p-6 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
                   <li className="row-span-3">
@@ -83,7 +89,7 @@ export function Navigation() {
                   href="/docs"
                   className="group inline-flex h-10 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50"
                 >
-                  Documentation
+                  {t.nav.documentation}
                 </Link>
               </NavigationMenuLink>
             </NavigationMenuItem>
@@ -94,7 +100,7 @@ export function Navigation() {
                   href="/pricing"
                   className="group inline-flex h-10 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50"
                 >
-                  Pricing
+                  {t.nav.pricing}
                 </Link>
               </NavigationMenuLink>
             </NavigationMenuItem>
@@ -102,22 +108,37 @@ export function Navigation() {
         </NavigationMenu>
 
         <div className="flex items-center gap-2">
+          <LanguageSwitcher />
           <Button
             variant="ghost"
             size="icon"
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            className="mr-2"
           >
             <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
             <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
             <span className="sr-only">Toggle theme</span>
           </Button>
-          <Button variant="ghost" asChild>
-            <Link href="/login">Login</Link>
-          </Button>
-          <Button asChild>
-            <Link href="/signup">Get Started</Link>
-          </Button>
+          {session ? (
+            <Button variant="ghost" onClick={() => signOut({ callbackUrl: "/" })}>
+              <LogOut className="mr-2 h-4 w-4" />
+              {t.nav.logout}
+            </Button>
+          ) : (
+            <>
+              <Button variant="ghost" asChild>
+                <Link href="/login" className="flex items-center">
+                  <LogIn className="mr-2 h-4 w-4" />
+                  {t.nav.login}
+                </Link>
+              </Button>
+              <Button asChild>
+                <Link href="/register" className="flex items-center">
+                  <UserPlus className="mr-2 h-4 w-4" />
+                  {t.nav.getStarted}
+                </Link>
+              </Button>
+            </>
+          )}
         </div>
       </div>
     </header>

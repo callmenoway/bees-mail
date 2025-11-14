@@ -23,7 +23,7 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          throw new Error("Credenziali mancanti");
+          throw new Error("Missing credentials");
         }
 
         const user = await db.user.findUnique({
@@ -33,7 +33,7 @@ export const authOptions: NextAuthOptions = {
         });
 
         if (!user || !user.password) {
-          throw new Error("Credenziali non valide");
+          throw new Error("Invalid credentials");
         }
 
         const isPasswordValid = await bcrypt.compare(
@@ -42,7 +42,7 @@ export const authOptions: NextAuthOptions = {
         );
 
         if (!isPasswordValid) {
-          throw new Error("Credenziali non valide");
+          throw new Error("Invalid credentials");
         }
 
         return {

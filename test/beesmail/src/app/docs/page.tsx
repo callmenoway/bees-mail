@@ -117,7 +117,7 @@ console.log('Message sent:', message.id)`}</code>
 
               <div className="flex gap-4 pt-4">
                 <Button asChild>
-                  <Link href="/signup">
+                  <Link href="/register">
                     Get Your API Key
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>

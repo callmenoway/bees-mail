@@ -11,16 +11,16 @@ export const registerRouter = router({
       z.object({
         username: z
           .string()
-          .min(3, 'Lo username deve essere almeno 3 caratteri')
-          .max(30, 'Lo username non può superare 30 caratteri')
-          .regex(/^[a-zA-Z0-9]+$/, 'Lo username può contenere solo lettere e numeri'),
+          .min(3, 'Username must be at least 3 characters')
+          .max(30, 'Username cannot exceed 30 characters')
+          .regex(/^[a-zA-Z0-9]+$/, 'Username can only contain letters and numbers'),
         password: z
           .string()
-          .min(8, 'La password deve essere almeno 8 caratteri')
-          .regex(/[A-Z]/, 'La password deve contenere almeno una lettera maiuscola')
-          .regex(/[a-z]/, 'La password deve contenere almeno una lettera minuscola')
-          .regex(/[0-9]/, 'La password deve contenere almeno un numero')
-          .regex(/[^A-Za-z0-9]/, 'La password deve contenere almeno un carattere speciale'),
+          .min(8, 'Password must be at least 8 characters')
+          .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+          .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
+          .regex(/[0-9]/, 'Password must contain at least one number')
+          .regex(/[^A-Za-z0-9]/, 'Password must contain at least one special character'),
       })
     )
     .mutation(async ({ input }) => {
@@ -35,7 +35,7 @@ export const registerRouter = router({
         if (existingUser) {
           throw new TRPCError({
             code: 'CONFLICT',
-            message: 'Questo username è già in uso',
+            message: 'This username is already taken',
           });
         }
 
@@ -48,7 +48,7 @@ export const registerRouter = router({
         if (existingEmail) {
           throw new TRPCError({
             code: 'CONFLICT',
-            message: 'Questa email è già in uso',
+            message: 'This email is already in use',
           });
         }
 
@@ -67,7 +67,7 @@ export const registerRouter = router({
 
         return {
           success: true,
-          message: 'Account creato con successo',
+          message: 'Account created successfully',
           user: {
             id: user.id,
             username: user.username,
@@ -80,7 +80,7 @@ export const registerRouter = router({
         }
         throw new TRPCError({
           code: 'INTERNAL_SERVER_ERROR',
-          message: 'Si è verificato un errore durante la registrazione',
+          message: 'An error occurred during registration',
         });
       }
     }),

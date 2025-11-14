@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -19,36 +20,37 @@ import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { AlertCircle, ArrowLeftIcon, X } from "lucide-react";
-import trpc from "@/utils/trpc";
-
-// Schema per il primo step (email)
-const emailSchema = z.object({
-  emailPrefix: z
-    .string()
-    .min(3, { message: "Il prefisso email deve essere almeno 3 caratteri." })
-    .max(30, { message: "Il prefisso email non può superare 30 caratteri." })
-    .regex(/^[a-zA-Z0-9._-]+$/, {
-      message: "Il prefisso può contenere solo lettere, numeri, punti, trattini e underscore.",
-    }),
-});
-
-// Schema per il secondo step (password)
-const passwordSchema = z.object({
-  password: z.string().min(1, { message: "La password è obbligatoria." }),
-});
+import { useLanguage } from "@/lib/language-context";
 
 export function LoginForm() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [step, setStep] = useState<"email" | "password">("email");
   const [emailPrefix, setEmailPrefix] = useState("");
   const [error, setError] = useState("");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Schema per il primo step (email)
+  const emailSchema = z.object({
+    email: z
+      .string()
+      .min(1, { message: t.login.emailLabel + " is required" })
+      .regex(
+        /^[a-zA-Z0-9._-]+:[a-zA-Z0-9]+$/,
+        { message: t.server.invalidEmailFormat }
+      ),
+  });
+
+  // Schema per il secondo step (password)
+  const passwordSchema = z.object({
+    password: z.string().min(1, { message: t.server.passwordRequired }),
+  });
+
   const emailForm = useForm<z.infer<typeof emailSchema>>({
     resolver: zodResolver(emailSchema),
     defaultValues: {
-      emailPrefix: "",
+      email: "",
     },
   });
 
@@ -60,7 +62,7 @@ export function LoginForm() {
   });
 
   function onEmailSubmit(values: z.infer<typeof emailSchema>) {
-    setEmailPrefix(values.emailPrefix);
+    setEmailPrefix(values.email);
     // Simula il caricamento dell'avatar dall'API
     // In produzione, qui faresti una chiamata API per ottenere l'avatar
     setTimeout(() => {
@@ -75,17 +77,20 @@ export function LoginForm() {
     setIsLoading(true);
 
     try {
-      const result = await trpc.auth.login.mutate({
-        email: `${emailPrefix}:beesmail`,
+      const result = await signIn("credentials", {
+        email: emailPrefix,
         password: values.password,
+        redirect: false,
       });
 
-      if (result.success) {
+      if (result?.error) {
+        setError(t.login.invalidCredentials);
+      } else if (result?.ok) {
         // Redirect a /inbox se il login ha successo
         router.push("/inbox");
       }
     } catch (err: any) {
-      setError(err.message || "Email o password non corretti");
+      setError(t.login.loginError);
     } finally {
       setIsLoading(false);
     }
@@ -98,7 +103,8 @@ export function LoginForm() {
 
   // Genera l'icona con la prima lettera
   const getAvatarContent = () => {
-    const firstLetter = emailPrefix.charAt(0).toUpperCase();
+    const username = emailPrefix.split(':')[0];
+    const firstLetter = username.charAt(0).toUpperCase();
     return (
       <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-yellow-400 to-amber-600">
         <span className="text-2xl font-bold text-white">{firstLetter}</span>
@@ -111,7 +117,7 @@ export function LoginForm() {
       {error && (
         <Alert className="mb-4 border-red-200 bg-red-50 dark:bg-red-950 dark:border-red-800">
           <AlertCircle className="h-4 w-4 text-red-600 dark:text-red-400" />
-          <AlertTitle className="text-red-800 dark:text-red-300">Errore</AlertTitle>
+          <AlertTitle className="text-red-800 dark:text-red-300">{t.login.errorTitle}</AlertTitle>
           <AlertDescription className="text-red-700 dark:text-red-400">
             {error}
           </AlertDescription>
@@ -129,27 +135,22 @@ export function LoginForm() {
           <form onSubmit={emailForm.handleSubmit(onEmailSubmit)} className="space-y-6">
             <FormField
               control={emailForm.control}
-              name="emailPrefix"
+              name="email"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-amber-900 dark:text-amber-400">
-                    Indirizzo Email
+                    {t.login.emailLabel}
                   </FormLabel>
                   <FormControl>
-                    <div className="flex items-center overflow-hidden rounded-md border border-amber-300 dark:border-amber-700 bg-white dark:bg-slate-900 focus-within:ring-2 focus-within:ring-amber-500">
-                      <Input
-                        placeholder="username"
-                        {...field}
-                        className="flex-1 border-0 focus-visible:ring-0 text-gray-900 dark:text-gray-100"
-                        autoFocus
-                      />
-                      <span className="bg-amber-100 dark:bg-amber-900 px-3 py-2 text-sm font-medium text-amber-900 dark:text-amber-300">
-                        :beesmail
-                      </span>
-                    </div>
+                    <Input
+                      placeholder={t.login.emailPlaceholder}
+                      {...field}
+                      className="border-amber-300 dark:border-amber-700 bg-white dark:bg-slate-900 focus-visible:ring-amber-500 text-gray-900 dark:text-gray-100"
+                      autoFocus
+                    />
                   </FormControl>
                   <FormDescription className="text-xs text-amber-700 dark:text-amber-500">
-                    Inserisci il prefisso della tua email Beesmail
+                    {t.login.emailDescription}
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -160,7 +161,7 @@ export function LoginForm() {
               type="submit"
               className="w-full bg-gradient-to-r from-yellow-500 to-amber-600 text-white hover:from-yellow-600 hover:to-amber-700"
             >
-              Continua
+              {t.login.continueButton}
             </Button>
           </form>
         </Form>
@@ -187,16 +188,16 @@ export function LoginForm() {
               </div>
             </div>
             <div className="text-center">
-              <p className="text-lg font-semibold text-amber-900">
-                {emailPrefix}:beesmail
+              <p className="text-lg font-semibold text-amber-900 dark:text-amber-400">
+                {emailPrefix}
               </p>
               <button
                 type="button"
                 onClick={goBackToEmail}
-                className="mt-1 flex items-center justify-center text-sm text-amber-700 hover:text-amber-900"
+                className="mt-1 flex items-center justify-center text-sm text-amber-700 dark:text-amber-500 hover:text-amber-900 dark:hover:text-amber-300"
               >
                 <ArrowLeftIcon className="mr-1 h-3 w-3" />
-                Cambia account
+                {t.login.changeAccount}
               </button>
             </div>
           </div>
@@ -208,13 +209,13 @@ export function LoginForm() {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-amber-900">Password</FormLabel>
+                    <FormLabel className="text-amber-900 dark:text-amber-400">{t.login.passwordLabel}</FormLabel>
                     <FormControl>
                       <Input
                         type="password"
-                        placeholder="••••••••"
+                        placeholder={t.login.passwordPlaceholder}
                         {...field}
-                        className="border-amber-300 focus-visible:ring-amber-500"
+                        className="border-amber-300 dark:border-amber-700 focus-visible:ring-amber-500 text-gray-900 dark:text-gray-100"
                         autoFocus
                       />
                     </FormControl>
@@ -226,9 +227,9 @@ export function LoginForm() {
               <div className="flex items-center justify-between text-sm">
                 <a
                   href="/forgot-password"
-                  className="text-amber-700 hover:text-amber-900 underline"
+                  className="text-amber-700 dark:text-amber-500 hover:text-amber-900 dark:hover:text-amber-300 underline"
                 >
-                  Password dimenticata?
+                  {t.login.forgotPassword}
                 </a>
               </div>
 
@@ -237,7 +238,7 @@ export function LoginForm() {
                 disabled={isLoading}
                 className="w-full bg-gradient-to-r from-yellow-500 to-amber-600 text-white hover:from-yellow-600 hover:to-amber-700 disabled:opacity-50"
               >
-                {isLoading ? "Accesso in corso..." : "Accedi"}
+                {isLoading ? t.login.signingIn : t.login.signInButton}
               </Button>
             </form>
           </Form>

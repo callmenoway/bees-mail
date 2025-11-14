@@ -11,13 +11,13 @@ export const loginRouter = router({
       z.object({
         email: z
           .string()
-          .min(1, 'L\'email è obbligatoria')
+          .min(1, 'Email is required')
           .regex(
             /^[a-zA-Z0-9._-]+:[a-zA-Z0-9]+$/,
-            'Formato email non valido. Usa il formato username:dominio'
+            'Invalid email format. Use username:domain format'
           )
           .transform((val) => val.toLowerCase()), // Sanitizzazione: converte in lowercase
-        password: z.string().min(1, 'La password è obbligatoria'),
+        password: z.string().min(1, 'Password is required'),
       })
     )
     .mutation(async ({ input }) => {
@@ -35,7 +35,7 @@ export const loginRouter = router({
         if (!/^[a-zA-Z0-9._-]+$/.test(sanitizedUsername)) {
           throw new TRPCError({
             code: 'BAD_REQUEST',
-            message: 'Username non valido',
+            message: 'Invalid username',
           });
         }
 
@@ -43,7 +43,7 @@ export const loginRouter = router({
         if (!/^[a-zA-Z0-9]+$/.test(sanitizedDomain)) {
           throw new TRPCError({
             code: 'BAD_REQUEST',
-            message: 'Dominio non valido',
+            message: 'Invalid domain',
           });
         }
 
@@ -58,7 +58,7 @@ export const loginRouter = router({
         if (!user) {
           throw new TRPCError({
             code: 'UNAUTHORIZED',
-            message: 'Credenziali non valide',
+            message: 'Invalid credentials',
           });
         }
 
@@ -68,14 +68,14 @@ export const loginRouter = router({
         if (!isValidPassword) {
           throw new TRPCError({
             code: 'UNAUTHORIZED',
-            message: 'Credenziali non valide',
+            message: 'Invalid credentials',
           });
         }
 
         // Login riuscito
         return {
           success: true,
-          message: 'Login effettuato con successo',
+          message: 'Login successful',
           user: {
             id: user.id,
             username: user.username,
@@ -90,7 +90,7 @@ export const loginRouter = router({
         }
         throw new TRPCError({
           code: 'INTERNAL_SERVER_ERROR',
-          message: 'Si è verificato un errore durante il login',
+          message: 'An error occurred during login',
         });
       }
     }),

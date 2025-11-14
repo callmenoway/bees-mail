@@ -38,7 +38,7 @@ export default function Home() {
 
           <div className="flex flex-col sm:flex-row gap-4 mt-4">
             <Button size="lg" asChild>
-              <Link href="/signup">
+              <Link href="/register">
                 Get Started Free
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
@@ -232,7 +232,7 @@ console.log(result.messageId)`}</code>
             </p>
             <div className="flex flex-col sm:flex-row gap-4 mt-4">
               <Button size="lg" asChild>
-                <Link href="/signup">
+                <Link href="/register">
                   Start Building Free
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>

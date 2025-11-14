@@ -63,7 +63,7 @@ export default function PricingPage() {
           </CardContent>
           <CardFooter>
             <Button className="w-full" variant="outline" asChild>
-              <Link href="/signup">
+              <Link href="/register">
                 Get Started
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
@@ -129,7 +129,7 @@ export default function PricingPage() {
           </CardContent>
           <CardFooter>
             <Button className="w-full" asChild>
-              <Link href="/signup?plan=pro">
+              <Link href="/register?plan=pro">
                 Start Free Trial
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>

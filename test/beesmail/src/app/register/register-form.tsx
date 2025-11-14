@@ -21,40 +21,42 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Progress } from "@/components/ui/progress";
 import { CheckCircle2Icon, AlertCircle, X } from "lucide-react";
 import trpc from "@/utils/trpc";
-
-//schema di validazione con zod
-const formSchema = z.object({
-  emailPrefix: z
-    .string()
-    .min(3, { message: "Il prefisso email deve essere almeno 3 caratteri." })
-    .max(30, { message: "Il prefisso email non può superare 30 caratteri." })
-    .regex(/^[a-zA-Z0-9]+$/, {
-      message: "Il prefisso può contenere solo lettere e numeri.",
-    }),
-  password: z
-    .string()
-    .min(8, { message: "La password deve essere almeno 8 caratteri." })
-    .regex(/[A-Z]/, { message: "La password deve contenere almeno una lettera maiuscola." })
-    .regex(/[a-z]/, { message: "La password deve contenere almeno una lettera minuscola." })
-    .regex(/[0-9]/, { message: "La password deve contenere almeno un numero." })
-    .regex(/[^A-Za-z0-9]/, {
-      message: "La password deve contenere almeno un carattere speciale.",
-    }),
-  confirmPassword: z.string(),
-  acceptTerms: z.boolean().refine((val) => val === true, {
-    message: "Devi accettare i termini e le condizioni.",
-  }),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Le password non corrispondono.",
-  path: ["confirmPassword"],
-});
+import { useLanguage } from "@/lib/language-context";
 
 export function RegisterForm() {
+  const { t } = useLanguage();
   const [passwordStrength, setPasswordStrength] = useState(0);
   const [showSuccess, setShowSuccess] = useState(false);
   const [showError, setShowError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  //schema di validazione con zod
+  const formSchema = z.object({
+    emailPrefix: z
+      .string()
+      .min(3, { message: t.register.validation.emailMinLength })
+      .max(30, { message: t.register.validation.emailMaxLength })
+      .regex(/^[a-zA-Z0-9]+$/, {
+        message: t.register.validation.emailFormat,
+      }),
+    password: z
+      .string()
+      .min(8, { message: t.register.validation.passwordMinLength })
+      .regex(/[A-Z]/, { message: t.register.validation.passwordUppercase })
+      .regex(/[a-z]/, { message: t.register.validation.passwordLowercase })
+      .regex(/[0-9]/, { message: t.register.validation.passwordNumber })
+      .regex(/[^A-Za-z0-9]/, {
+        message: t.register.validation.passwordSpecial,
+      }),
+    confirmPassword: z.string(),
+    acceptTerms: z.boolean().refine((val) => val === true, {
+      message: t.register.validation.termsRequired,
+    }),
+  }).refine((data) => data.password === data.confirmPassword, {
+    message: t.register.validation.passwordMismatch,
+    path: ["confirmPassword"],
+  });
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -98,7 +100,7 @@ export function RegisterForm() {
         }, 2000);
       }
     } catch (error: any) {
-      setErrorMessage(error.message || "Si è verificato un errore durante la registrazione");
+      setErrorMessage(error.message || t.server.registrationError);
       setShowError(true);
     } finally {
       setIsLoading(false);
@@ -111,11 +113,10 @@ export function RegisterForm() {
         <Alert className="mb-4 border-green-200 bg-green-50 dark:bg-green-950 dark:border-green-800">
           <CheckCircle2Icon className="h-4 w-4 text-green-600 dark:text-green-400" />
           <AlertTitle className="text-green-800 dark:text-green-300">
-            Registrazione completata!
+            {t.register.successTitle}
           </AlertTitle>
           <AlertDescription className="text-green-700 dark:text-green-400">
-            Il tuo account {form.getValues("emailPrefix")}:beesmail è stato
-            creato con successo. Reindirizzamento in corso...
+            {t.register.successMessage.replace("{email}", form.getValues("emailPrefix") + ":beesmail")}
           </AlertDescription>
         </Alert>
       )}
@@ -131,7 +132,7 @@ export function RegisterForm() {
             <X className="h-4 w-4" />
           </button>
           <AlertTitle className="text-red-800 dark:text-red-300">
-            Errore
+            {t.register.errorTitle}
           </AlertTitle>
           <AlertDescription className="text-red-700 dark:text-red-400">
             {errorMessage}
@@ -148,22 +149,22 @@ export function RegisterForm() {
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-amber-900 dark:text-amber-400">
-                  Indirizzo Email
+                  {t.register.emailLabel}
                 </FormLabel>
                 <FormControl>
                   <div className="flex items-center overflow-hidden rounded-md border border-amber-300 dark:border-amber-700 bg-white dark:bg-slate-900 focus-within:ring-2 focus-within:ring-amber-500">
                     <Input
-                      placeholder="username"
+                      placeholder={t.register.emailPlaceholder}
                       {...field}
                       className="flex-1 border-0 focus-visible:ring-0 text-gray-900 dark:text-gray-100"
                     />
                     <span className="bg-amber-100 dark:bg-amber-900 px-3 py-2 text-sm font-medium text-amber-900 dark:text-amber-300">
-                      :beesmail
+                      {t.register.emailSuffix}
                     </span>
                   </div>
                 </FormControl>
                 <FormDescription className="text-xs text-amber-700 dark:text-amber-500">
-                  Scegli il prefisso per la tua email Beesmail
+                  {t.register.emailDescription}
                 </FormDescription>
                 <FormMessage />
               </FormItem>
@@ -176,18 +177,18 @@ export function RegisterForm() {
             name="password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-amber-900 dark:text-amber-400">Password</FormLabel>
+                <FormLabel className="text-amber-900 dark:text-amber-400">{t.register.passwordLabel}</FormLabel>
                 <FormControl>
                   <Input
                     type="password"
-                    placeholder="••••••••"
+                    placeholder={t.register.passwordPlaceholder}
                     {...field}
                     className="border-amber-300 dark:border-amber-700 focus-visible:ring-amber-500 text-gray-900 dark:text-gray-100"
                   />
                 </FormControl>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="text-amber-700 dark:text-amber-500">Complessità password:</span>
+                    <span className="text-amber-700 dark:text-amber-500">{t.register.passwordStrength}</span>
                     <span
                       className={`font-medium ${
                         passwordStrength < 50
@@ -198,10 +199,10 @@ export function RegisterForm() {
                       }`}
                     >
                       {passwordStrength < 50
-                        ? "Debole"
+                        ? t.register.passwordStrengthWeak
                         : passwordStrength < 75
-                        ? "Medio"
-                        : "Forte"}
+                        ? t.register.passwordStrengthMedium
+                        : t.register.passwordStrengthStrong}
                     </span>
                   </div>
                   <Progress
@@ -209,8 +210,8 @@ export function RegisterForm() {
                     className="h-2 bg-amber-200 [&>div]:bg-gradient-to-r [&>div]:from-yellow-500 [&>div]:to-amber-600"
                   />
                 </div>
-                <FormDescription className="text-xs text-amber-700 dark:text-amber-500">\n                  Minimo 8 caratteri, con maiuscole, minuscole, numeri e
-                  simboli
+                <FormDescription className="text-xs text-amber-700 dark:text-amber-500">
+                  {t.register.passwordDescription}
                 </FormDescription>
                 <FormMessage />
               </FormItem>
@@ -224,12 +225,12 @@ export function RegisterForm() {
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-amber-900 dark:text-amber-400">
-                  Conferma Password
+                  {t.register.confirmPasswordLabel}
                 </FormLabel>
                 <FormControl>
                   <Input
                     type="password"
-                    placeholder="••••••••"
+                    placeholder={t.register.passwordPlaceholder}
                     {...field}
                     className="border-amber-300 dark:border-amber-700 focus-visible:ring-amber-500 text-gray-900 dark:text-gray-100"
                   />
@@ -254,12 +255,12 @@ export function RegisterForm() {
                 </FormControl>
                 <div className="space-y-1 leading-none">
                   <Label className="text-sm text-amber-900 dark:text-amber-400">
-                    Accetto i{" "}
+                    {t.register.acceptTerms}{" "}
                     <a
                       href="/terms"
                       className="font-medium text-amber-700 dark:text-amber-500 underline hover:text-amber-900 dark:hover:text-amber-300"
                     >
-                      termini e le condizioni
+                      {t.register.termsAndConditions}
                     </a>
                   </Label>
                   <FormMessage />
@@ -274,7 +275,7 @@ export function RegisterForm() {
             disabled={isLoading}
             className="w-full bg-gradient-to-r from-yellow-500 to-amber-600 text-white hover:from-yellow-600 hover:to-amber-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isLoading ? "Creazione account..." : "Crea Account"}
+            {isLoading ? t.register.creatingAccount : t.register.createAccountButton}
           </Button>
         </form>
       </Form>

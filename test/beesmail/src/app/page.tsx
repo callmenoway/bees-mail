@@ -15,8 +15,11 @@ import {
   Database,
   Workflow
 } from "lucide-react"
+import { getServerTranslations } from "@/lib/server-translations"
+import { CodeSnippet } from "@/components/code-snippet"
 
-export default function Home() {
+export default async function Home() {
+  const t = await getServerTranslations();
   return (
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
@@ -24,28 +27,27 @@ export default function Home() {
         <div className="container flex flex-col items-center gap-8 py-20 md:py-32 text-center">
           <Badge variant="secondary" className="gap-1">
             <Hexagon className="h-3 w-3 fill-amber-500 text-amber-500" />
-            Introducing the Honeycomb Protocol
+            {t.homepage.bread}
           </Badge>
           
           <h1 className="text-4xl font-bold tracking-tight sm:text-6xl md:text-7xl lg:text-8xl max-w-5xl">
-            Email, <span className="text-amber-500">reimagined</span> for developers
+            {t.homepage.title.p1}<span className="text-amber-500">{t.homepage.title.p2}</span>{t.homepage.title.p3}
           </h1>
           
           <p className="text-lg text-muted-foreground max-w-2xl md:text-xl">
-            Replace SMTP with direct API calls. Built with Next.js, tRPC, and PostgreSQL. 
-            Type-safe, ultra-fast, and designed for modern applications.
+            {t.homepage.description}
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 mt-4">
             <Button size="lg" asChild>
               <Link href="/register">
-                Get Started Free
+                {t.homepage.buttons.getStarted}
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
             <Button size="lg" variant="outline" asChild>
               <Link href="/docs">
-                Read Documentation
+                {t.homepage.buttons.docs}
               </Link>
             </Button>
           </div>
@@ -53,15 +55,15 @@ export default function Home() {
           <div className="flex flex-wrap items-center justify-center gap-8 mt-8 text-sm text-muted-foreground">
             <div className="flex items-center gap-2">
               <CheckCircle2 className="h-4 w-4 text-green-500" />
-              <span>No credit card required</span>
+              <span>{t.homepage.toasts.t1}</span>
             </div>
             <div className="flex items-center gap-2">
               <CheckCircle2 className="h-4 w-4 text-green-500" />
-              <span>Open source</span>
+              <span>{t.homepage.toasts.t2}</span>
             </div>
             <div className="flex items-center gap-2">
               <CheckCircle2 className="h-4 w-4 text-green-500" />
-              <span>Self-hostable</span>
+              <span>{t.homepage.toasts.t3}</span>
             </div>
           </div>
         </div>
@@ -73,12 +75,12 @@ export default function Home() {
       {/* Features Section */}
       <section className="container py-20 md:py-32">
         <div className="text-center mb-16">
-          <Badge variant="outline" className="mb-4">Features</Badge>
+          <Badge variant="outline" className="mb-4">{t.homepage.why.feautures}</Badge>
           <h2 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl mb-4">
-            Why BeesMail?
+            {t.homepage.why.q1}
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            A modern approach to messaging that developers actually want to use
+            {t.homepage.why.description}
           </p>
         </div>
 
@@ -86,9 +88,9 @@ export default function Home() {
           <Card>
             <CardHeader>
               <Zap className="h-10 w-10 text-amber-500 mb-2" />
-              <CardTitle>Lightning Fast</CardTitle>
+              <CardTitle>{t.homepage.why.t1}</CardTitle>
               <CardDescription>
-                Direct API calls replace SMTP. No more slow mail queues or delivery delays.
+                {t.homepage.why.d1}
               </CardDescription>
             </CardHeader>
           </Card>
@@ -96,9 +98,9 @@ export default function Home() {
           <Card>
             <CardHeader>
               <Code2 className="h-10 w-10 text-blue-500 mb-2" />
-              <CardTitle>End-to-End Type Safety</CardTitle>
+              <CardTitle>{t.homepage.why.t2}</CardTitle>
               <CardDescription>
-                Built with tRPC and Zod. Catch errors at compile time, not runtime.
+                {t.homepage.why.d2}
               </CardDescription>
             </CardHeader>
           </Card>
@@ -106,9 +108,9 @@ export default function Home() {
           <Card>
             <CardHeader>
               <Shield className="h-10 w-10 text-green-500 mb-2" />
-              <CardTitle>Secure by Default</CardTitle>
+              <CardTitle>{t.homepage.why.t3}</CardTitle>
               <CardDescription>
-                Enterprise-grade encryption, authentication, and compliance out of the box.
+                {t.homepage.why.d3}
               </CardDescription>
             </CardHeader>
           </Card>
@@ -116,9 +118,9 @@ export default function Home() {
           <Card>
             <CardHeader>
               <Gauge className="h-10 w-10 text-purple-500 mb-2" />
-              <CardTitle>Optimized for Performance</CardTitle>
+              <CardTitle>{t.homepage.why.t4}</CardTitle>
               <CardDescription>
-                PostgreSQL with strategic indexing. Query optimization for instant inbox refresh.
+                {t.homepage.why.d4}
               </CardDescription>
             </CardHeader>
           </Card>
@@ -126,9 +128,9 @@ export default function Home() {
           <Card>
             <CardHeader>
               <Database className="h-10 w-10 text-orange-500 mb-2" />
-              <CardTitle>Powered by Prisma</CardTitle>
+              <CardTitle>{t.homepage.why.t5}</CardTitle>
               <CardDescription>
-                Type-safe database access with migrations, introspection, and incredible DX.
+                {t.homepage.why.d5}
               </CardDescription>
             </CardHeader>
           </Card>
@@ -136,9 +138,9 @@ export default function Home() {
           <Card>
             <CardHeader>
               <Workflow className="h-10 w-10 text-pink-500 mb-2" />
-              <CardTitle>tRPC Integration</CardTitle>
+              <CardTitle>{t.homepage.why.t6}</CardTitle>
               <CardDescription>
-                Seamless RPC calls with automatic validation and type inference across your stack.
+                {t.homepage.why.d6}
               </CardDescription>
             </CardHeader>
           </Card>
@@ -153,56 +155,52 @@ export default function Home() {
           <div>
             <Badge variant="outline" className="mb-4">
               <Hexagon className="h-3 w-3 mr-1 fill-amber-500 text-amber-500" />
-              Honeycomb Protocol
+              {t.homepage.protocol.badge}
             </Badge>
             <h2 className="text-3xl font-bold tracking-tight sm:text-4xl mb-4">
-              A protocol built for the modern web
+              {t.homepage.protocol.title}
             </h2>
             <p className="text-lg text-muted-foreground mb-6">
-              The Honeycomb Protocol replaces traditional SMTP with direct server-to-server API communication. 
-              No more dealing with ancient email standards.
+              {t.homepage.protocol.description}
             </p>
             <ul className="space-y-4">
               <li className="flex gap-3">
                 <CheckCircle2 className="h-6 w-6 text-green-500 shrink-0" />
                 <div>
-                  <div className="font-semibold">Type-Safe Schema</div>
-                  <div className="text-sm text-muted-foreground">Validate messages with Zod before they leave your server</div>
+                  <div className="font-semibold">{t.homepage.protocol.feautures.t1}</div>
+                  <div className="text-sm text-muted-foreground">{t.homepage.protocol.feautures.d1}</div>
                 </div>
               </li>
               <li className="flex gap-3">
                 <CheckCircle2 className="h-6 w-6 text-green-500 shrink-0" />
                 <div>
-                  <div className="font-semibold">Real-Time Delivery</div>
-                  <div className="text-sm text-muted-foreground">Instant message delivery with built-in retry logic</div>
+                  <div className="font-semibold">{t.homepage.protocol.feautures.t2}</div>
+                  <div className="text-sm text-muted-foreground">{t.homepage.protocol.feautures.d2}</div>
                 </div>
               </li>
               <li className="flex gap-3">
                 <CheckCircle2 className="h-6 w-6 text-green-500 shrink-0" />
                 <div>
-                  <div className="font-semibold">Rich Attachments</div>
-                  <div className="text-sm text-muted-foreground">S3-compatible storage for files with automatic handling</div>
+                  <div className="font-semibold">{t.homepage.protocol.feautures.t3}</div>
+                  <div className="text-sm text-muted-foreground">{t.homepage.protocol.feautures.d3}</div>
                 </div>
               </li>
             </ul>
             <Button asChild className="mt-8">
               <Link href="/docs/protocol">
-                Learn About Honeycomb
+                {t.homepage.protocol.learnMore}
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
           </div>
 
-          <Card className="bg-muted/50">
-            <CardHeader>
-              <CardTitle className="text-sm font-mono text-muted-foreground">Example: Sending a Message</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <pre className="text-sm overflow-x-auto">
-                <code>{`import { client } from '@beesmail/client'
+          <CodeSnippet
+            title={t.homepage.protocol.example}
+            language="typescript"
+            code={`import { client } from '@beesmail/client'
 
 const result = await client.messages.send({
-  to: 'user@example.com',
+  to: 'user:beesmail',
   subject: 'Hello from Honeycomb!',
   body: 'This message is type-safe! ✨',
   attachments: [
@@ -211,10 +209,8 @@ const result = await client.messages.send({
 })
 
 // Type-safe response
-console.log(result.messageId)`}</code>
-              </pre>
-            </CardContent>
-          </Card>
+console.log(result.messageId)`}
+          />
         </div>
       </section>
 
@@ -225,21 +221,21 @@ console.log(result.messageId)`}</code>
         <Card className="bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/10 border-amber-500/20">
           <CardContent className="flex flex-col items-center text-center gap-6 p-12">
             <h2 className="text-3xl font-bold tracking-tight sm:text-4xl max-w-2xl">
-              Ready to modernize your messaging infrastructure?
+              {t.homepage.cta.title}
             </h2>
             <p className="text-lg text-muted-foreground max-w-xl">
-              Join developers building the future of email. Get started in minutes, scale to millions.
+              {t.homepage.cta.description}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 mt-4">
               <Button size="lg" asChild>
                 <Link href="/register">
-                  Start Building Free
+                  {t.homepage.cta.button}
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
               <Button size="lg" variant="outline" asChild>
                 <Link href="/contact">
-                  Talk to Sales
+                  {t.homepage.cta.button2}
                 </Link>
               </Button>
             </div>

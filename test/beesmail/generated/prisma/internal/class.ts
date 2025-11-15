@@ -23,7 +23,7 @@ const config: runtime.GetPrismaClientConfig = {
       "value": "prisma-client"
     },
     "output": {
-      "value": "/home/davide/Documents/bees-mail/test/beesmail/generated/prisma",
+      "value": "/Users/davidecose/Documents/GitHub/bees-mail/test/beesmail/generated/prisma",
       "fromEnvVar": null
     },
     "config": {
@@ -32,12 +32,12 @@ const config: runtime.GetPrismaClientConfig = {
     "binaryTargets": [
       {
         "fromEnvVar": null,
-        "value": "debian-openssl-3.0.x",
+        "value": "darwin-arm64",
         "native": true
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "/home/davide/Documents/bees-mail/test/beesmail/prisma/schema.prisma",
+    "sourceFilePath": "/Users/davidecose/Documents/GitHub/bees-mail/test/beesmail/prisma/schema.prisma",
     "isCustomOutput": true
   },
   "relativePath": "../../prisma",
@@ -47,6 +47,7 @@ const config: runtime.GetPrismaClientConfig = {
     "db"
   ],
   "activeProvider": "postgresql",
+  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {

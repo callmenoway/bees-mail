@@ -1,8 +1,11 @@
 import Link from "next/link"
 import { Hexagon } from "lucide-react"
 import { Separator } from "@/components/ui/separator"
+import { getServerTranslations } from "@/lib/server-translations"
 
-export function Footer() {
+export async function Footer() {
+  const t = await getServerTranslations();
+  
   return (
     <footer className="border-t bg-background">
       <div className="container py-12 md:py-16">
@@ -13,83 +16,83 @@ export function Footer() {
               <span>BeesMail</span>
             </Link>
             <p className="text-sm text-muted-foreground">
-              The next-generation email protocol. Fast, secure, and type-safe.
+              {t.footer.description}
             </p>
           </div>
 
           <div>
-            <h3 className="font-semibold mb-4">Product</h3>
+            <h3 className="font-semibold mb-4">{t.footer.product}</h3>
             <ul className="space-y-3 text-sm">
               <li>
                 <Link href="/features" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Features
+                  {t.footer.features}
                 </Link>
               </li>
               <li>
                 <Link href="/pricing" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Pricing
+                  {t.footer.pricing}
                 </Link>
               </li>
               <li>
                 <Link href="/security" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Security
+                  {t.footer.security}
                 </Link>
               </li>
               <li>
                 <Link href="/changelog" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Changelog
+                  {t.footer.changelog}
                 </Link>
               </li>
             </ul>
           </div>
 
           <div>
-            <h3 className="font-semibold mb-4">Developers</h3>
+            <h3 className="font-semibold mb-4">{t.footer.developers}</h3>
             <ul className="space-y-3 text-sm">
               <li>
                 <Link href="/docs" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Documentation
+                  {t.footer.documentation}
                 </Link>
               </li>
               <li>
                 <Link href="/docs/api" className="text-muted-foreground hover:text-foreground transition-colors">
-                  API Reference
+                  {t.footer.apiReference}
                 </Link>
               </li>
               <li>
                 <Link href="/docs/sdk" className="text-muted-foreground hover:text-foreground transition-colors">
-                  SDKs
+                  {t.footer.sdks}
                 </Link>
               </li>
               <li>
                 <Link href="/status" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Status
+                  {t.footer.status}
                 </Link>
               </li>
             </ul>
           </div>
 
           <div>
-            <h3 className="font-semibold mb-4">Company</h3>
+            <h3 className="font-semibold mb-4">{t.footer.company}</h3>
             <ul className="space-y-3 text-sm">
               <li>
                 <Link href="/about" className="text-muted-foreground hover:text-foreground transition-colors">
-                  About
+                  {t.footer.about}
                 </Link>
               </li>
               <li>
                 <Link href="/blog" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Blog
+                  {t.footer.blog}
                 </Link>
               </li>
               <li>
                 <Link href="/careers" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Careers
+                  {t.footer.careers}
                 </Link>
               </li>
               <li>
                 <Link href="/contact" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Contact
+                  {t.footer.contact}
                 </Link>
               </li>
             </ul>
@@ -100,17 +103,17 @@ export function Footer() {
 
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <p className="text-sm text-muted-foreground">
-            © 2025 BeesMail. All rights reserved.
+            {t.footer.copyright}
           </p>
           <div className="flex gap-6 text-sm text-muted-foreground">
             <Link href="/privacy" className="hover:text-foreground transition-colors">
-              Privacy
+              {t.footer.privacy}
             </Link>
             <Link href="/terms" className="hover:text-foreground transition-colors">
-              Terms
+              {t.footer.terms}
             </Link>
             <Link href="/cookies" className="hover:text-foreground transition-colors">
-              Cookies
+              {t.footer.cookies}
             </Link>
           </div>
         </div>

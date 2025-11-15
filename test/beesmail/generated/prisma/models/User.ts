@@ -33,6 +33,8 @@ export type UserMinAggregateOutputType = {
   domain: string | null
   isPremium: boolean | null
   image: string | null
+  twoFactorEnabled: boolean | null
+  twoFactorSecret: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -46,6 +48,8 @@ export type UserMaxAggregateOutputType = {
   domain: string | null
   isPremium: boolean | null
   image: string | null
+  twoFactorEnabled: boolean | null
+  twoFactorSecret: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -59,6 +63,8 @@ export type UserCountAggregateOutputType = {
   domain: number
   isPremium: number
   image: number
+  twoFactorEnabled: number
+  twoFactorSecret: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -74,6 +80,8 @@ export type UserMinAggregateInputType = {
   domain?: true
   isPremium?: true
   image?: true
+  twoFactorEnabled?: true
+  twoFactorSecret?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -87,6 +95,8 @@ export type UserMaxAggregateInputType = {
   domain?: true
   isPremium?: true
   image?: true
+  twoFactorEnabled?: true
+  twoFactorSecret?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -100,6 +110,8 @@ export type UserCountAggregateInputType = {
   domain?: true
   isPremium?: true
   image?: true
+  twoFactorEnabled?: true
+  twoFactorSecret?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -186,6 +198,8 @@ export type UserGroupByOutputType = {
   domain: string
   isPremium: boolean
   image: string | null
+  twoFactorEnabled: boolean
+  twoFactorSecret: string | null
   createdAt: Date
   updatedAt: Date
   _count: UserCountAggregateOutputType | null
@@ -220,6 +234,8 @@ export type UserWhereInput = {
   domain?: Prisma.StringFilter<"User"> | string
   isPremium?: Prisma.BoolFilter<"User"> | boolean
   image?: Prisma.StringNullableFilter<"User"> | string | null
+  twoFactorEnabled?: Prisma.BoolFilter<"User"> | boolean
+  twoFactorSecret?: Prisma.StringNullableFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   accounts?: Prisma.AccountListRelationFilter
@@ -235,6 +251,8 @@ export type UserOrderByWithRelationInput = {
   domain?: Prisma.SortOrder
   isPremium?: Prisma.SortOrder
   image?: Prisma.SortOrderInput | Prisma.SortOrder
+  twoFactorEnabled?: Prisma.SortOrder
+  twoFactorSecret?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   accounts?: Prisma.AccountOrderByRelationAggregateInput
@@ -253,6 +271,8 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   domain?: Prisma.StringFilter<"User"> | string
   isPremium?: Prisma.BoolFilter<"User"> | boolean
   image?: Prisma.StringNullableFilter<"User"> | string | null
+  twoFactorEnabled?: Prisma.BoolFilter<"User"> | boolean
+  twoFactorSecret?: Prisma.StringNullableFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   accounts?: Prisma.AccountListRelationFilter
@@ -268,6 +288,8 @@ export type UserOrderByWithAggregationInput = {
   domain?: Prisma.SortOrder
   isPremium?: Prisma.SortOrder
   image?: Prisma.SortOrderInput | Prisma.SortOrder
+  twoFactorEnabled?: Prisma.SortOrder
+  twoFactorSecret?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.UserCountOrderByAggregateInput
@@ -287,6 +309,8 @@ export type UserScalarWhereWithAggregatesInput = {
   domain?: Prisma.StringWithAggregatesFilter<"User"> | string
   isPremium?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   image?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  twoFactorEnabled?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
+  twoFactorSecret?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
 }
@@ -300,6 +324,8 @@ export type UserCreateInput = {
   domain?: string
   isPremium?: boolean
   image?: string | null
+  twoFactorEnabled?: boolean
+  twoFactorSecret?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
@@ -315,6 +341,8 @@ export type UserUncheckedCreateInput = {
   domain?: string
   isPremium?: boolean
   image?: string | null
+  twoFactorEnabled?: boolean
+  twoFactorSecret?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
@@ -330,6 +358,8 @@ export type UserUpdateInput = {
   domain?: Prisma.StringFieldUpdateOperationsInput | string
   isPremium?: Prisma.BoolFieldUpdateOperationsInput | boolean
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twoFactorEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  twoFactorSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
@@ -345,6 +375,8 @@ export type UserUncheckedUpdateInput = {
   domain?: Prisma.StringFieldUpdateOperationsInput | string
   isPremium?: Prisma.BoolFieldUpdateOperationsInput | boolean
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twoFactorEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  twoFactorSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
@@ -360,6 +392,8 @@ export type UserCreateManyInput = {
   domain?: string
   isPremium?: boolean
   image?: string | null
+  twoFactorEnabled?: boolean
+  twoFactorSecret?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -373,6 +407,8 @@ export type UserUpdateManyMutationInput = {
   domain?: Prisma.StringFieldUpdateOperationsInput | string
   isPremium?: Prisma.BoolFieldUpdateOperationsInput | boolean
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twoFactorEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  twoFactorSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -386,6 +422,8 @@ export type UserUncheckedUpdateManyInput = {
   domain?: Prisma.StringFieldUpdateOperationsInput | string
   isPremium?: Prisma.BoolFieldUpdateOperationsInput | boolean
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twoFactorEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  twoFactorSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -399,6 +437,8 @@ export type UserCountOrderByAggregateInput = {
   domain?: Prisma.SortOrder
   isPremium?: Prisma.SortOrder
   image?: Prisma.SortOrder
+  twoFactorEnabled?: Prisma.SortOrder
+  twoFactorSecret?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -412,6 +452,8 @@ export type UserMaxOrderByAggregateInput = {
   domain?: Prisma.SortOrder
   isPremium?: Prisma.SortOrder
   image?: Prisma.SortOrder
+  twoFactorEnabled?: Prisma.SortOrder
+  twoFactorSecret?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -425,6 +467,8 @@ export type UserMinOrderByAggregateInput = {
   domain?: Prisma.SortOrder
   isPremium?: Prisma.SortOrder
   image?: Prisma.SortOrder
+  twoFactorEnabled?: Prisma.SortOrder
+  twoFactorSecret?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -491,6 +535,8 @@ export type UserCreateWithoutAccountsInput = {
   domain?: string
   isPremium?: boolean
   image?: string | null
+  twoFactorEnabled?: boolean
+  twoFactorSecret?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
@@ -505,6 +551,8 @@ export type UserUncheckedCreateWithoutAccountsInput = {
   domain?: string
   isPremium?: boolean
   image?: string | null
+  twoFactorEnabled?: boolean
+  twoFactorSecret?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
@@ -535,6 +583,8 @@ export type UserUpdateWithoutAccountsInput = {
   domain?: Prisma.StringFieldUpdateOperationsInput | string
   isPremium?: Prisma.BoolFieldUpdateOperationsInput | boolean
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twoFactorEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  twoFactorSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
@@ -549,6 +599,8 @@ export type UserUncheckedUpdateWithoutAccountsInput = {
   domain?: Prisma.StringFieldUpdateOperationsInput | string
   isPremium?: Prisma.BoolFieldUpdateOperationsInput | boolean
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twoFactorEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  twoFactorSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
@@ -563,6 +615,8 @@ export type UserCreateWithoutSessionsInput = {
   domain?: string
   isPremium?: boolean
   image?: string | null
+  twoFactorEnabled?: boolean
+  twoFactorSecret?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
@@ -577,6 +631,8 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   domain?: string
   isPremium?: boolean
   image?: string | null
+  twoFactorEnabled?: boolean
+  twoFactorSecret?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
@@ -607,6 +663,8 @@ export type UserUpdateWithoutSessionsInput = {
   domain?: Prisma.StringFieldUpdateOperationsInput | string
   isPremium?: Prisma.BoolFieldUpdateOperationsInput | boolean
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twoFactorEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  twoFactorSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
@@ -621,6 +679,8 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   domain?: Prisma.StringFieldUpdateOperationsInput | string
   isPremium?: Prisma.BoolFieldUpdateOperationsInput | boolean
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twoFactorEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  twoFactorSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
@@ -675,6 +735,8 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   domain?: boolean
   isPremium?: boolean
   image?: boolean
+  twoFactorEnabled?: boolean
+  twoFactorSecret?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   accounts?: boolean | Prisma.User$accountsArgs<ExtArgs>
@@ -691,6 +753,8 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   domain?: boolean
   isPremium?: boolean
   image?: boolean
+  twoFactorEnabled?: boolean
+  twoFactorSecret?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["user"]>
@@ -704,6 +768,8 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   domain?: boolean
   isPremium?: boolean
   image?: boolean
+  twoFactorEnabled?: boolean
+  twoFactorSecret?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["user"]>
@@ -717,11 +783,13 @@ export type UserSelectScalar = {
   domain?: boolean
   isPremium?: boolean
   image?: boolean
+  twoFactorEnabled?: boolean
+  twoFactorSecret?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "username" | "email" | "emailVerified" | "password" | "domain" | "isPremium" | "image" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "username" | "email" | "emailVerified" | "password" | "domain" | "isPremium" | "image" | "twoFactorEnabled" | "twoFactorSecret" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   accounts?: boolean | Prisma.User$accountsArgs<ExtArgs>
   sessions?: boolean | Prisma.User$sessionsArgs<ExtArgs>
@@ -745,6 +813,8 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     domain: string
     isPremium: boolean
     image: string | null
+    twoFactorEnabled: boolean
+    twoFactorSecret: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["user"]>
@@ -1180,6 +1250,8 @@ export interface UserFieldRefs {
   readonly domain: Prisma.FieldRef<"User", 'String'>
   readonly isPremium: Prisma.FieldRef<"User", 'Boolean'>
   readonly image: Prisma.FieldRef<"User", 'String'>
+  readonly twoFactorEnabled: Prisma.FieldRef<"User", 'Boolean'>
+  readonly twoFactorSecret: Prisma.FieldRef<"User", 'String'>
   readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"User", 'DateTime'>
 }

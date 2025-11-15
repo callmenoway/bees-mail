@@ -27,7 +27,6 @@ export const registerRouter = router({
       const { username, password } = input;
 
       try {
-        // Verifica se lo username esiste già
         const existingUser = await db.user.findUnique({
           where: { username: username.toLowerCase() },
         });
@@ -39,7 +38,6 @@ export const registerRouter = router({
           });
         }
 
-        // Verifica se l'email completa esiste già
         const email = `${username.toLowerCase()}:beesmail`;
         const existingEmail = await db.user.findUnique({
           where: { email },
@@ -52,16 +50,16 @@ export const registerRouter = router({
           });
         }
 
-        // Hash della password
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Crea l'utente
         const user = await db.user.create({
           data: {
             username: username.toLowerCase(),
             email,
             password: hashedPassword,
             domain: 'beesmail',
+            twoFactorEnabled: false,
+            twoFactorSecret: null,
           },
         });
 

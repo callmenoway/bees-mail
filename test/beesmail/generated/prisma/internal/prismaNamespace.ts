@@ -757,6 +757,8 @@ export const UserScalarFieldEnum = {
   domain: 'domain',
   isPremium: 'isPremium',
   image: 'image',
+  twoFactorEnabled: 'twoFactorEnabled',
+  twoFactorSecret: 'twoFactorSecret',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

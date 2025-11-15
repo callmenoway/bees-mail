@@ -17,16 +17,25 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSlot,
+} from "@/components/ui/input-otp";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { AlertCircle, ArrowLeftIcon, X } from "lucide-react";
 import { useLanguage } from "@/lib/language-context";
+import trpc from "@/utils/trpc";
 
 export function LoginForm() {
   const router = useRouter();
   const { t } = useLanguage();
-  const [step, setStep] = useState<"email" | "password">("email");
+  const [step, setStep] = useState<"email" | "password" | "2fa">("email");
   const [emailPrefix, setEmailPrefix] = useState("");
+  const [passwordValue, setPasswordValue] = useState("");
+  const [userId, setUserId] = useState<string | null>(null);
+  const [otpValue, setOtpValue] = useState("");
   const [error, setError] = useState("");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -75,22 +84,68 @@ export function LoginForm() {
   async function onPasswordSubmit(values: z.infer<typeof passwordSchema>) {
     setError("");
     setIsLoading(true);
+    setPasswordValue(values.password);
 
     try {
-      const result = await signIn("credentials", {
-        email: emailPrefix,
-        password: values.password,
-        redirect: false,
-      });
+      const twoFactorStatus = await trpc.twoFactor.checkLoginStatus.query({ email: emailPrefix });
 
-      if (result?.error) {
-        setError(t.login.invalidCredentials);
-      } else if (result?.ok) {
-        // Redirect a /inbox se il login ha successo
-        router.push("/inbox");
+      if (twoFactorStatus.enabled && twoFactorStatus.userId) {
+        const result = await signIn("credentials", {
+          email: emailPrefix,
+          password: values.password,
+          redirect: false,
+        });
+
+        if (result?.error) {
+          setError(t.login.invalidCredentials);
+          setIsLoading(false);
+          return;
+        }
+
+        setUserId(twoFactorStatus.userId);
+        setStep("2fa");
+        setIsLoading(false);
+      } else {
+        const result = await signIn("credentials", {
+          email: emailPrefix,
+          password: values.password,
+          redirect: false,
+        });
+
+        if (result?.error) {
+          setError(t.login.invalidCredentials);
+        } else if (result?.ok) {
+          router.push("/inbox");
+        }
+        setIsLoading(false);
       }
     } catch (err: any) {
       setError(t.login.loginError);
+      setIsLoading(false);
+    }
+  }
+
+  async function onOtpSubmit() {
+    if (otpValue.length !== 6 || !userId) {
+      setError("Please enter a 6-digit code");
+      return;
+    }
+
+    setError("");
+    setIsLoading(true);
+
+    try {
+      const result = await trpc.twoFactor.verifyLoginToken.mutate({
+        userId,
+        token: otpValue,
+      });
+
+      if (result.success) {
+        router.push("/inbox");
+      }
+    } catch (err: any) {
+      setError("Invalid verification code. Please try again.");
+      setOtpValue("");
     } finally {
       setIsLoading(false);
     }
@@ -99,6 +154,14 @@ export function LoginForm() {
   function goBackToEmail() {
     setStep("email");
     passwordForm.reset();
+    setOtpValue("");
+    setPasswordValue("");
+    setUserId(null);
+  }
+
+  function goBackToPassword() {
+    setStep("password");
+    setOtpValue("");
   }
 
   // Genera l'icona con la prima lettera
@@ -165,9 +228,8 @@ export function LoginForm() {
             </Button>
           </form>
         </Form>
-      ) : (
+      ) : step === "password" ? (
         <div className="space-y-6">
-          {/* Avatar e Email Display */}
           <div className="flex flex-col items-center space-y-4">
             <div className="relative">
               <Avatar className="h-20 w-20 border-4 border-amber-300">
@@ -242,6 +304,79 @@ export function LoginForm() {
               </Button>
             </form>
           </Form>
+        </div>
+      ) : (
+        <div className="space-y-6">
+          <div className="flex flex-col items-center space-y-4">
+            <div className="relative">
+              <Avatar className="h-20 w-20 border-4 border-amber-300">
+                {avatarUrl ? (
+                  <AvatarImage src={avatarUrl} alt={emailPrefix} />
+                ) : (
+                  <AvatarFallback className="overflow-hidden">
+                    {getAvatarContent()}
+                  </AvatarFallback>
+                )}
+              </Avatar>
+              <div className="absolute -bottom-1 -right-1">
+                <img
+                  src="/bee.svg"
+                  alt="bee"
+                  className="h-8 w-8"
+                />
+              </div>
+            </div>
+            <div className="text-center">
+              <p className="text-lg font-semibold text-amber-900 dark:text-amber-400">
+                {emailPrefix}
+              </p>
+              <button
+                type="button"
+                onClick={goBackToPassword}
+                className="mt-1 flex items-center justify-center text-sm text-amber-700 dark:text-amber-500 hover:text-amber-900 dark:hover:text-amber-300"
+              >
+                <ArrowLeftIcon className="mr-1 h-3 w-3" />
+                Use a different method
+              </button>
+            </div>
+          </div>
+
+          <div className="space-y-6">
+            <div className="text-center">
+              <h3 className="text-lg font-semibold text-amber-900 dark:text-amber-400">
+                Two-Factor Authentication
+              </h3>
+              <p className="text-sm text-amber-700 dark:text-amber-500 mt-2">
+                Enter the 6-digit code from your authenticator app
+              </p>
+            </div>
+
+            <div className="flex flex-col items-center space-y-4">
+              <InputOTP
+                maxLength={6}
+                value={otpValue}
+                onChange={setOtpValue}
+                disabled={isLoading}
+              >
+                <InputOTPGroup>
+                  <InputOTPSlot index={0} className="border-amber-300 dark:border-amber-700" />
+                  <InputOTPSlot index={1} className="border-amber-300 dark:border-amber-700" />
+                  <InputOTPSlot index={2} className="border-amber-300 dark:border-amber-700" />
+                  <InputOTPSlot index={3} className="border-amber-300 dark:border-amber-700" />
+                  <InputOTPSlot index={4} className="border-amber-300 dark:border-amber-700" />
+                  <InputOTPSlot index={5} className="border-amber-300 dark:border-amber-700" />
+                </InputOTPGroup>
+              </InputOTP>
+
+              <Button
+                onClick={onOtpSubmit}
+                disabled={isLoading || otpValue.length !== 6}
+                className="w-full bg-gradient-to-r from-yellow-500 to-amber-600 text-white hover:from-yellow-600 hover:to-amber-700 disabled:opacity-50"
+              >
+                {isLoading ? "Verifying..." : "Verify Code"}
+              </Button>
+            </div>
+          </div>
         </div>
       )}
     </>

@@ -62,9 +62,15 @@ export const authOptions: NextAuthOptions = {
         token.picture = user.image;
       }
       
-      // Handle session update trigger
-      if (trigger === "update" && session?.image) {
-        token.picture = session.image;
+      if (trigger === "update") {
+        const dbUser = await db.user.findUnique({
+          where: { id: token.id as string },
+          select: { image: true },
+        });
+        
+        if (dbUser) {
+          token.picture = dbUser.image;
+        }
       }
       
       return token;

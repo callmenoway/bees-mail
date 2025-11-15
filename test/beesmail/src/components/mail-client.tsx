@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useSession } from "next-auth/react";
 import {
   Sidebar,
   SidebarContent,
@@ -109,6 +110,13 @@ export function MailClient({ userId, userEmail, userAvatar }: MailClientProps) {
   const [activeFolder, setActiveFolder] = useState("inbox");
   const { theme, setTheme } = useTheme();
   const [showSettings, setShowSettings] = useState(false);
+  const { data: session, status } = useSession();
+  
+  const currentAvatar = session?.user?.image;
+  
+  console.log('[MailClient] Session status:', status);
+  console.log('[MailClient] Session avatar:', session?.user?.image);
+  console.log('[MailClient] Current avatar:', currentAvatar);
 
   const folders = [
     { id: "inbox", label: "Inbox", icon: Inbox, count: 2 },
@@ -213,7 +221,7 @@ export function MailClient({ userId, userEmail, userAvatar }: MailClientProps) {
                   <DropdownMenuTrigger asChild>
                     <SidebarMenuButton className="cursor-pointer">
                       <Avatar className="h-8 w-8">
-                        <AvatarImage src={userAvatar || undefined} />
+                        <AvatarImage src={currentAvatar || undefined} />
                         <AvatarFallback className="bg-gradient-to-br from-yellow-400 to-amber-600 text-white font-semibold">
                           {userEmail.charAt(0).toUpperCase()}
                         </AvatarFallback>
@@ -455,7 +463,7 @@ export function MailClient({ userId, userEmail, userAvatar }: MailClientProps) {
         onOpenChange={setShowSettings}
         userId={userId}
         userEmail={userEmail}
-        currentAvatar={userAvatar}
+        currentAvatar={currentAvatar}
       />
     </SidebarProvider>
   );

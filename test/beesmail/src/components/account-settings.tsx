@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
+import * as React from "react";
 import {
   Dialog,
   DialogContent,
@@ -27,6 +28,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import trpc from "@/utils/trpc";
 import { useSession } from "next-auth/react";
+import { TwoFactorSetup } from "@/components/two-factor-setup";
 
 interface AccountSettingsProps {
   open: boolean;
@@ -50,52 +52,66 @@ export function AccountSettings({
   const [success, setSuccess] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { data: session, update: updateSession } = useSession();
+  const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
+  const [isLoadingStatus, setIsLoadingStatus] = useState(true);
+
+  React.useEffect(() => {
+    setAvatarPreviewUrl(currentAvatar || null);
+  }, [currentAvatar]);
+
+  React.useEffect(() => {
+    if (open && userId) {
+      fetchTwoFactorStatus();
+    }
+  }, [open, userId]);
+
+  const fetchTwoFactorStatus = async () => {
+    if (!userId) {
+      setIsLoadingStatus(false);
+      return;
+    }
+    
+    try {
+      setIsLoadingStatus(true);
+      const result = await trpc.twoFactor.getStatus.query({ userId });
+      setTwoFactorEnabled(result.enabled);
+    } catch (err) {
+      setTwoFactorEnabled(false);
+    } finally {
+      setIsLoadingStatus(false);
+    }
+  };
 
   const username = userEmail.split(":")[0];
   const domain = userEmail.split(":")[1];
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log("File select triggered");
     const file = e.target.files?.[0];
-    console.log("File:", file);
     
-    if (!file) {
-      console.log("No file selected");
-      return;
-    }
+    if (!file) return;
 
-    console.log("File type:", file.type);
-    console.log("File size:", file.size);
-
-    // Check file size (5MB max)
-    const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+    const maxSize = 5 * 1024 * 1024;
     if (file.size > maxSize) {
       setError("File size must be less than 5MB");
       if (fileInputRef.current) fileInputRef.current.value = "";
       return;
     }
 
-    // Check file type - only allow JPG, PNG, WebP (no GIFs)
     const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
     if (!allowedTypes.includes(file.type.toLowerCase())) {
-      console.log("File type not allowed:", file.type);
       setError("Please select a JPG, PNG, or WebP image");
       if (fileInputRef.current) fileInputRef.current.value = "";
       return;
     }
 
-    console.log("Starting to read file...");
     setError(null);
     const reader = new FileReader();
     reader.onload = (event) => {
-      console.log("File loaded successfully");
       if (event.target?.result) {
-        console.log("Setting selected image...");
         setSelectedImage(event.target.result as string);
       }
     };
-    reader.onerror = (error) => {
-      console.error("Failed to load image:", error);
+    reader.onerror = () => {
       setError("Failed to load image");
       if (fileInputRef.current) fileInputRef.current.value = "";
     };
@@ -109,42 +125,31 @@ export function AccountSettings({
     setSuccess(null);
     
     try {
-      // Convert blob to base64
       const base64 = await new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
         reader.onloadend = () => resolve(reader.result as string);
         reader.onerror = reject;
         reader.readAsDataURL(blob);
       });
-
-      console.log("Uploading avatar...");
       
-      // Upload to server via tRPC
       const result = await trpc.user.updateAvatar.mutate({
-        userId: userId,
-        avatarBase64: base64,
+        userId,
+        image: base64,
       });
 
-      console.log("Upload result:", result);
-      
+      console.log('[Account Settings] Upload result:', result);
+
       if (result.success) {
         setAvatarPreviewUrl(result.image);
         setSuccess("Avatar updated successfully!");
         
-        // Update NextAuth session
-        await updateSession({
-          ...session,
-          user: {
-            ...session?.user,
-            image: result.image,
-          },
-        });
+        console.log('[Account Settings] Updating session with image:', result.image);
         
-        // Clear success message after 3 seconds
+        await updateSession();
+        
         setTimeout(() => setSuccess(null), 3000);
       }
     } catch (err) {
-      console.error("Upload error:", err);
       setError("Failed to upload avatar. Please try again.");
     } finally {
       setIsUploading(false);
@@ -253,7 +258,7 @@ export function AccountSettings({
                     className="flex-1"
                   />
                   <Input
-                    value={`@${domain}`}
+                    value={`:${domain}`}
                     disabled
                     className="w-32"
                   />
@@ -271,17 +276,18 @@ export function AccountSettings({
               <div className="flex items-center gap-2">
                 <Shield className="h-5 w-5 text-amber-600 dark:text-amber-400" />
                 <h3 className="text-lg font-semibold">Two-Factor Authentication</h3>
-                <Badge variant="outline" className="ml-auto">Coming Soon</Badge>
               </div>
-              <div className="p-4 rounded-lg border bg-card opacity-50 pointer-events-none">
-                <p className="text-sm text-muted-foreground mb-3">
-                  Add an extra layer of security to your account with 2FA
-                </p>
-                <Button variant="outline" disabled>
-                  <Lock className="mr-2 h-4 w-4" />
-                  Enable 2FA
-                </Button>
-              </div>
+              {isLoadingStatus ? (
+                <div className="p-4 rounded-lg border bg-card">
+                  <p className="text-sm text-muted-foreground">Loading 2FA status...</p>
+                </div>
+              ) : (
+                <TwoFactorSetup
+                  userId={userId}
+                  isEnabled={twoFactorEnabled}
+                  onStatusChange={fetchTwoFactorStatus}
+                />
+              )}
             </div>
 
             <Separator />
